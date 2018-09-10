@@ -154,7 +154,7 @@ u8 update_font(u16 x,u16 y,u8 size,u8* src)
 	u8 *pname;
 	u32 *buf;
 	u8 res=0;		   
- 	u16 i,j;
+ 	u16 i;
 	FIL *fftemp;
 	u8 rval=0; 
 	res=0XFF;		

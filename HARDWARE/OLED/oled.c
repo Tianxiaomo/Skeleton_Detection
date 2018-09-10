@@ -811,7 +811,7 @@ void Show_Font57(unsigned char a, unsigned char b, unsigned char c, unsigned cha
 {
 unsigned char *Src_Pointer;
 unsigned char i,Font,Pick;
-unsigned char m=0,n=0;	
+unsigned char m=0;	
 		m=b-' ';//得到偏移后的值	
 	switch(a)
 	{
@@ -987,16 +987,11 @@ void display_char(unsigned char chXpos, unsigned char chYpos, unsigned char chCh
 	uint8_t i, j, chTemp;
 	uint8_t chYpos0 = chYpos;
 
-		   
     for (i = 0; i < chSize; i ++) {   
-	
-			chTemp = c_chFont1608[chChr - 0x20][i];
-			
+		chTemp = c_chFont1608[chChr - 0x20][i];
         for (j = 0; j < 8; j ++) {
-    		if (chTemp & 0x80) {
-				draw_point(chXpos, chYpos, hwColor);
-    		}	
-			if(mode) draw_point(chXpos, chYpos, backColor);				
+    		if (chTemp & 0x80) draw_point(chXpos, chYpos, hwColor);
+    		else if(mode) draw_point(chXpos, chYpos, backColor);				
 			chTemp <<= 1;
 			chYpos ++;
 			if ((chYpos - chYpos0) == chSize) {
