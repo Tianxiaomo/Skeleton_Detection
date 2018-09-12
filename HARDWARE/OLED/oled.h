@@ -23,7 +23,6 @@
 #define __OLED_H			  	 
 #include "sys.h"
 #include "stdlib.h"	 
-#include "gimage.h"
 //LCD重要参数集
 typedef struct  
 {										    

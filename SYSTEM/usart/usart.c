@@ -3,20 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////// 	 
 //如果使用os,则包括下面的头文件即可.
 #if SYSTEM_SUPPORT_OS
-#include "includes.h"					//os 使用	  
+#include "FreeRTOS.h"					//os 使用	  
 #endif
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK STM32F429开发板
-//串口1初始化		   
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//修改日期:2015/9/7
-//版本：V1.5
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2009-2019
-//All rights reserved
-//********************************************************************************
+
 //V1.0修改说明 
 ////////////////////////////////////////////////////////////////////////////////// 	  
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB	  
@@ -112,47 +101,48 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
  
 
 
-//串口1中断服务程序
-void USART1_IRQHandler(void)                	
-{ 
-	u8 Res;
-#if SYSTEM_SUPPORT_OS	 	//使用OS
-	OSIntEnter();    
-#endif
-	if((__HAL_UART_GET_FLAG(&UART1_Handler,UART_FLAG_RXNE)!=RESET))  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
-	{
-        HAL_UART_Receive(&UART1_Handler,&Res,1,1000); 
-		if((USART_RX_STA&0x8000)==0)//接收未完成
-		{
-			if(USART_RX_STA&0x4000)//接收到了0x0d
-			{
-				if(Res!=0x0a)USART_RX_STA=0;//接收错误,重新开始
-				else USART_RX_STA|=0x8000;	//接收完成了 
-			}
-			else //还没收到0X0D
-			{	
-				if(Res==0x0d)USART_RX_STA|=0x4000;
-				else
-				{
-					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
-					USART_RX_STA++;
-					if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
-				}		 
-			}
-		}   		 
-	}
-	HAL_UART_IRQHandler(&UART1_Handler);	
-#if SYSTEM_SUPPORT_OS	 	//使用OS
-	OSIntExit();  											 
-#endif
-} 
-#endif	
+////串口1中断服务程序
+//void USART1_IRQHandler(void)                	
+//{ 
+//	u8 Res;
+//#if SYSTEM_SUPPORT_OS	 	//使用OS
+////	OSIntEnter();    
+//	
+//#endif
+//	if((__HAL_UART_GET_FLAG(&UART1_Handler,UART_FLAG_RXNE)!=RESET))  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
+//	{
+//        HAL_UART_Receive(&UART1_Handler,&Res,1,1000); 
+//		if((USART_RX_STA&0x8000)==0)//接收未完成
+//		{
+//			if(USART_RX_STA&0x4000)//接收到了0x0d
+//			{
+//				if(Res!=0x0a)USART_RX_STA=0;//接收错误,重新开始
+//				else USART_RX_STA|=0x8000;	//接收完成了 
+//			}
+//			else //还没收到0X0D
+//			{	
+//				if(Res==0x0d)USART_RX_STA|=0x4000;
+//				else
+//				{
+//					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
+//					USART_RX_STA++;
+//					if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
+//				}		 
+//			}
+//		}   		 
+//	}
+//	HAL_UART_IRQHandler(&UART1_Handler);	
+//#if SYSTEM_SUPPORT_OS	 	//使用OS
+//	OSIntExit();  											 
+//#endif
+//} 
+//#endif	
 
-/****************************************************************************************/
-/****************************************************************************************/
-/*************************下面程序通过在回调函数中编写中断控制逻辑*********************/
-/****************************************************************************************
-***************************************************************************************************
+///****************************************************************************************/
+///****************************************************************************************/
+///*************************下面程序通过在回调函数中编写中断控制逻辑*********************/
+///****************************************************************************************
+//***************************************************************************************************
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -183,22 +173,37 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //串口1中断服务程序
 void USART1_IRQHandler(void)                	
 { 
-#if SYSTEM_SUPPORT_OS	 	//使用OS
-	OSIntEnter();    
-#endif
+//#if SYSTEM_SUPPORT_OS	 	//使用OS
+//	OSIntEnter();    
+//#endif
+	u32 timeout = 0;
+	u32 maxDelay = 0x1FFFF;
 	
 	HAL_UART_IRQHandler(&UART1_Handler);	//调用HAL库中断处理公用函数
 	
-    while (HAL_UART_GetState(&UART1_Handler) != HAL_UART_STATE_READY);//等待就绪
-
-	while(HAL_UART_Receive_IT(&UART1_Handler, (u8 *)aRxBuffer, RXBUFFERSIZE) != HAL_OK);//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	timeout = 0;
 	
-#if SYSTEM_SUPPORT_OS	 	//使用OS
-	OSIntExit();  											 
-#endif
+    while (HAL_UART_GetState(&UART1_Handler) != HAL_UART_STATE_READY)//等待就绪
+	{
+		timeout++;
+		if(timeout > maxDelay)break;
+	}
+	
+	timeout = 0;
+	
+	while(HAL_UART_Receive_IT(&UART1_Handler, (u8 *)aRxBuffer, RXBUFFERSIZE) != HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	{
+		timeout++;
+		if(timeout > maxDelay)break;
+	}
+	
+//#if SYSTEM_SUPPORT_OS	 	//使用OS
+//	OSIntExit();  											 
+//#endif
 } 
- 
 
-**************************************/
+#endif
+
+
 
 

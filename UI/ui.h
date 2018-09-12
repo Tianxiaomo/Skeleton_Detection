@@ -1,6 +1,7 @@
 #ifndef __UI_H
 #define __UI_H	
 
+
 #define pic_wel	"0:/SYSTEM/PICTURE/1.gif"
 #define pic_menu "0:/SYSTEM/PICTURE/MENU.jpg"
 

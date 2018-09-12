@@ -987,8 +987,11 @@ void display_char(unsigned char chXpos, unsigned char chYpos, unsigned char chCh
 	uint8_t i, j, chTemp;
 	uint8_t chYpos0 = chYpos;
 
-    for (i = 0; i < chSize; i ++) {   
-		chTemp = c_chFont1608[chChr - 0x20][i];
+    for (i = 0; i < chSize; i ++) {
+		if(chSize == 12)chTemp = oled_asc2_1206[chChr - 0x20][i];
+		else if(chSize == 16)chTemp = oled_asc2_1608[chChr - 0x20][i];
+		else if(chSize == 24)
+		
         for (j = 0; j < 8; j ++) {
     		if (chTemp & 0x80) draw_point(chXpos, chYpos, hwColor);
     		else if(mode) draw_point(chXpos, chYpos, backColor);				
@@ -1034,7 +1037,7 @@ u32 oled_pow(unsigned char m,unsigned char n)
 	return result;
 }	
 void OLED_ShowNum(unsigned char x,unsigned char y,int num,unsigned char len,unsigned char size,int hwColor)//自左到右参数分别为X,Y,整数值，字号大小，颜色值
-{         	
+{
 	u8 t,temp;
 	u8 enshow=0;						   
 	for(t=0;t<len;t++)

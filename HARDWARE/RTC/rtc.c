@@ -150,5 +150,6 @@ void RTC_WKUP_IRQHandler(void)
 void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
     LED=!LED;
+	__NOP;
 }
 
