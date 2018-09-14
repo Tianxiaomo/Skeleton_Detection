@@ -48,23 +48,23 @@ extern "C"
  * TYPEDEFS
  */
 typedef enum
-{
- KEY_UP   = 0 ,
- KEY_DOWN ,  
- KEY_SHORT_PRESS,
- KEY_LONG_PRESS
+{ 
+KEY_DOWN  = 0,
+KEY_UP ,
+KEY_SHORT_PRESS,
+KEY_LONG_PRESS
 }key_state;
 typedef struct 
 {
   u8 key_id;
   u8 key_state;
 }key_t;
-//自定义按键的ID
+//自定义按键的ID,由于GPIO脚在寄存器中是1位对应1脚
 typedef enum
 {
-	KEY_HOME_ID = 1,         //home键
-	KEY_MENU_ID,        //餐单键 
-	KEY_RE_ID,			//返回键
+	KEY_LEFT_ID = 0,         //home键
+	KEY_MENU_ID = 2 ,        //餐单键 
+	KEY_RIGHT_ID = 4,			//返回键
 	KEY_NULL_ID			//无方向，即按键处理完  
 }key_id;
 /*********************************************************************
@@ -73,11 +73,14 @@ typedef enum
 /*********************************************************************
  * CONSTANTS
  */
-#define LONG_PRESS_TIME       100         //10毫秒*300等于3秒	
+//#define KEY_HOME_ID 		2
+//#define KEY_LEFT_ID			0
+//#define KEY_RIGHT_ID		4
+#define LONG_PRESS_TIME     10         //10毫秒*300等于3秒	
 /*********************************************************************
  * MACROS
  */
-#define HOME_KEY_INPUT(i) ((GPIOA->IDR & 1<<i) && 1)  //PA0  高有效
+#define HOME_KEY_INPUT(i) ((GPIOA->IDR & i) && 1)  //PA0  高有效
 
 /*********************************************************************
  *PUBLIC FUNCTIONS DECLARE

@@ -43,7 +43,7 @@ typedef struct
 
 #define UI_PAGE_SIZE            12
 #define UI_NO_PAGE              0X8000
-#define UI_MAIN_PAGE            0X0001
+#define UI_HOME_PAGE            0X0001
 #define UI_PATTERN_1_PAGE       0X0002
 #define UI_PATTERN_2_PAGE       0X0004
 #define UI_SET_PAGE             0X0008
@@ -106,7 +106,8 @@ typedef struct
 /*********************************************************************
  *PUBLIC FUNCTIONS DECLARE
  */
-ui_state_t * Ui_stateGet(void);
+void Ui_stateSet(u32 ui_page,u8 ui_power);
+ui_state_t Ui_stateGet(void);
 void Ui_postPage(u32 page);
 void Ui_poll(void);
 void Ui_init(void);

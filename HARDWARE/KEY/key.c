@@ -66,15 +66,15 @@ void Key_Init(void)
     HAL_GPIO_Init(GPIOA,&GPIO_Initure);
     
     //中断线0-PA0
-    HAL_NVIC_SetPriority(EXTI0_IRQn,2,0);       //抢占优先级为2，子优先级为0
+    HAL_NVIC_SetPriority(EXTI0_IRQn,6,0);       //抢占优先级为2，子优先级为0
     HAL_NVIC_EnableIRQ(EXTI0_IRQn);             //使能中断线0
     
     //中断线2-PH2
-    HAL_NVIC_SetPriority(EXTI1_IRQn,2,1);       //抢占优先级为2，子优先级为1
+    HAL_NVIC_SetPriority(EXTI1_IRQn,7,0);       //抢占优先级为2，子优先级为1
     HAL_NVIC_EnableIRQ(EXTI1_IRQn);             //使能中断线2
     
     //中断线3-PH3
-    HAL_NVIC_SetPriority(EXTI2_IRQn,2,2);       //抢占优先级为2，子优先级为2
+    HAL_NVIC_SetPriority(EXTI2_IRQn,8,0);       //抢占优先级为2，子优先级为2
     HAL_NVIC_EnableIRQ(EXTI2_IRQn);             //使能中断线2
 
 //	软件消抖，判断点击，长按
@@ -90,52 +90,54 @@ void Key_Init(void)
 * 作者：      Momo  
 * 参数说明：  
 * 返回值说明：
-* 修改记录：
+* 修改记录：由于按键较硬，按下抬起一般要2-4 * 10个节拍，大多数是3 * 10个节拍
+	长按一般是 10-15 * 10个节拍，所以LONG_PRESS_TIME 设置位10
+	当只检测到一次是，定义为误触
 **********************************************************************************************************/
 
 void Key_timerHandler(TimerHandle_t xTimer)
 {
-	volatile static u16 time_cnt =0;
+	volatile static u16 time_cnt = 0;
 	u8 keyInputState ;
 	xTimerStop(key_timer_handle,0); 	//关闭key_timer
 	time_cnt ++;
 	
-	debug(DEBUG,"按键事件");
+	debug(DEBUG,"按键事件 %d",time_cnt);
 	
 	switch(time_cnt)
 	{
-		case 1:
-			keyInputState = Key_getState(key.key_id);
-			if(KEY_DOWN == keyInputState)//按键状态为按下
-			{
-			  xTimerStart(key_timer_handle,0);//启动key_timer
-			}
-			else                         //按键状态为松开
-			{
-			  time_cnt = 0;
-			  key.key_state = KEY_UP;
-			}	  
-			break;  	
-		case LONG_PRESS_TIME:
-			time_cnt = 0;
-			key.key_state = KEY_LONG_PRESS;
-			xEventGroupSetBits(app_event,APP_KEY_EVENT); //触发app事件
-//			App_postEvent(APP_KEY_EVENT);              
-			xTimerStop(key_timer_handle,0);				//关闭key_timer	
-			break;
-		default:
+		case 1:		//定义为误触
 			keyInputState = Key_getState(key.key_id);
 			if(KEY_DOWN == keyInputState)//按键状态为按下
 			{
 				xTimerStart(key_timer_handle,0);//启动key_timer
 			}
-			else                         			//按键状态为松开
+			else                         //按键状态为松开
+			{
+				debug(WARN,"按键松开");
+				time_cnt = 0;
+				key.key_state = KEY_UP;
+			}	  
+			break;  	
+		case LONG_PRESS_TIME:
+			time_cnt = 0;
+			key.key_state = KEY_LONG_PRESS;
+			debug(WARN,"长按事件");
+			xEventGroupSetBits(app_event,APP_KEY_EVENT); //触发app事件
+			xTimerStop(key_timer_handle,0);				//关闭key_timer	
+			break;
+		default:
+			keyInputState = Key_getState(key.key_id);
+			if(KEY_DOWN == keyInputState)				//按键状态为按下
+			{
+				xTimerStart(key_timer_handle,0);		//启动key_timer
+			}
+			else                         				//按键状态为松开
 			{
 				time_cnt = 0;
 				key.key_state = KEY_SHORT_PRESS;
-				xEventGroupSetBits(app_event,APP_KEY_EVENT);
-
-//				App_postEvent(APP_KEY_EVENT);               //触发app事件
+				debug(WARN,"短按事件");
+				xEventGroupSetBits(app_event,APP_KEY_EVENT);//触发app按键事件
 			}	  
 			break;
 	}
@@ -213,9 +215,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	
 	debug(WARN,"按下 %d",GPIO_Pin);
 	Key_setState(GPIO_Pin,KEY_DOWN);
-	debug(WARN,"按下 %d",GPIO_Pin);	
-	xTimerStartFromISR(key_timer_handle,err);	//开启周期定时器
-	debug(WARN,"按下 %d",GPIO_Pin);
+	while(pdFAIL == xTimerStartFromISR(key_timer_handle,err));	//开启周期定时器
 }
 
 /*********************************************************************************************************

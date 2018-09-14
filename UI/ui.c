@@ -123,16 +123,30 @@ void Ui_startSoftTimer(void)
 }
 
 /*******************************************************************************
-* 函数名：  ui_stateGet
+* 函数名：  ui_stateSet
 * 功能描述：设置ui的状态
 * 作者：    Momo  
 * 参数说明：  
 * 返回值说明：
 * 修改记录：
 *******************************************************************************/
-ui_state_t * Ui_stateGet(void)
+void Ui_stateSet(u32 ui_page,u8 ui_power)
 {
-  return &ui_state;
+	ui_state.ui_page = ui_page;
+	ui_state.ui_power = ui_power;
+}
+
+/*******************************************************************************
+* 函数名：  ui_stateGet
+* 功能描述：获取ui的状态
+* 作者：    Momo  
+* 参数说明：  
+* 返回值说明：
+* 修改记录：
+*******************************************************************************/
+ui_state_t Ui_stateGet(void)
+{
+  return ui_state;
 }
 /*************************************************************************************************************
 * 函数名：  Ui_postPage
@@ -472,7 +486,7 @@ void Ui_poll(void)
 	EventBits_t EventValue;
 	EventValue = xEventGroupSetBits(ui_event,UI_ALL_PAGE); //等待信号量触发,等待page置位 
 	switch(EventValue){
-		case UI_MAIN_PAGE:
+		case UI_HOME_PAGE:
 			Ui_ShowMainPage();
 			break;
 		case UI_PATTERN_1_PAGE:
