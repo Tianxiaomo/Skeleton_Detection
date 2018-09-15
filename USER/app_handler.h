@@ -28,19 +28,20 @@ extern "C"
  * CONSTANTS
  */
 #define APP_EVENT_SIZE                  32
-#define APP_EVENT_NULL                  0X00000000
-#define APP_OLED_ON_EVENT               0X00000001
-#define APP_OLED_DOWN_EVENT             0X00000002
+#define APP_EVENT_NULL                  0X000000
+#define APP_OLED_ON_EVENT               0X000001
+#define APP_OLED_DOWN_EVENT             0X000002
 	
-#define APP_HOME_EVENT					0X00000004
+#define APP_HOME_EVENT					0X000004
 	
-#define APP_PROTOCOL_PARASE_EVENT       0X00000004
-#define APP_KEY_EVENT                   0X00000008
-#define APP_BATTERY_DETECT_EVENT        0X00000010
-#define APP_ALARM_EVENT                 0X00000020  
-#define APP_CAL_STEP_EVENT              0X00000040 
-#define APP_WATCH_DOG					0x00000080
+#define APP_PROTOCOL_PARASE_EVENT       0X000004
+#define APP_KEY_EVENT                   0X000008
+#define APP_BATTERY_DETECT_EVENT        0X000010
+#define APP_ALARM_EVENT                 0X000020  
+#define APP_CAL_STEP_EVENT              0X000040 
+#define APP_WATCH_DOG					0x000080
 #define APP_EVENT_ALL                   0XFFFFFF
+#define APP_NOT_DOG						0X00007F
 /*********************************************************************
  * MACROS
  */

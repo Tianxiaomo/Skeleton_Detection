@@ -67,13 +67,23 @@ void App_timerHandler(TimerHandle_t xTimer);
 ****************************************************************************************************************/
 void App_init()	 
 {
+	app_event=xEventGroupCreate();	 //创建事件标志组
+	app_timer=xTimerCreate((const char*		)"AutoReloadTimer",
+							(TickType_t			)1000,
+							(UBaseType_t		)pdTRUE,
+							(void*				)1,
+							(TimerCallbackFunction_t)App_timerHandler); //周期定时器，周期1s(1000个时钟节拍)，周期模式
+	xTimerStart(app_timer,0);			//启动定时器				
+	
 	LED_Init();						//初始化与LED连接的硬件接口
 	Key_Init();						//初始化按键
 //	RTC_Init();						//RTC初始化
 	OLED_Init();					//初始化OLED屏
 	piclib_init();					//初始化画图
+							
  	debug(DEBUG,"oled ok");
 	Ui_init();
+										
 	my_mem_init(SRAMIN);			//初始化内部内存池
 	while(SD_Init())				//检测不到SD卡
 	{
@@ -85,14 +95,7 @@ void App_init()
 	exfuns_init();					//为fatfs相关变量申请内存  
  	f_mount(fs[0],"0:",1); 			//挂载SD卡 
 	
-	app_event=xEventGroupCreate();	 //创建事件标志组
-	app_timer=xTimerCreate((const char*		)"AutoReloadTimer",
-							(TickType_t			)1000,
-							(UBaseType_t		)pdTRUE,
-							(void*				)1,
-							(TimerCallbackFunction_t)App_timerHandler); //周期定时器，周期1s(1000个时钟节拍)，周期模式
-	
-	xTimerStart(app_timer,0);			//启动定时器
+	xEventGroupSetBits(app_event,APP_OLED_ON_EVENT);
 }
 /**************************************************************************************************************
 * 函数名：  App_task
@@ -115,6 +118,8 @@ void App_task(void *pvParameters)
 									   (BaseType_t			)pdTRUE,				
 									   (BaseType_t			)pdFALSE,
 									   (TickType_t			)portMAX_DELAY);
+		
+		EventValue &= APP_NOT_DOG;
 		debug(DEBUG,"事件 %d",EventValue);
 		switch(EventValue)
 		{
@@ -131,13 +136,13 @@ void App_task(void *pvParameters)
 		case APP_BATTERY_DETECT_EVENT:
 			App_batteryDetectHandler();
 			break; 
-		case APP_OLED_ON_ENENT:
+		case APP_OLED_ON_EVENT:
 			App_powerOnHandler();
 			break;
 //		case APP_CAL_STEP_EVENT:
 //			App_calStepHandler();
 			break;
-		case APP_OLED_DOWN_ENENT:
+		case APP_OLED_DOWN_EVENT:
 			App_powerDownHandler();
 			break;	
 //		case APP_WATCH_DOG:

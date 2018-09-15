@@ -62,7 +62,7 @@ typedef struct
 //自定义按键的ID,由于GPIO脚在寄存器中是1位对应1脚
 typedef enum
 {
-	KEY_LEFT_ID = 0,         //home键
+	KEY_LEFT_ID = 1,         //home键
 	KEY_MENU_ID = 2 ,        //餐单键 
 	KEY_RIGHT_ID = 4,			//返回键
 	KEY_NULL_ID			//无方向，即按键处理完  

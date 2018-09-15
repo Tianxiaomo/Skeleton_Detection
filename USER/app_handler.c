@@ -27,6 +27,7 @@ Skeleton_Detection
 #include "battery.h"
 //#include "ui.h"
 #include "delay.h"
+#include "log.h"
 /***********************************************************************************************************************
  * CONSTANTS
  */
@@ -65,80 +66,163 @@ Skeleton_Detection
 **********************************************************************************************************/
 void App_keyHandler(void)
 {
+	debug(WARN,"收到按键事件");
 	key_t * key;  
-	ui_state_t ui_state; 
-	ui_state = Ui_stateGet();                         //获取ui的状态
-	if( UI_POWER_ON == ui_state.ui_power )           //屏的状态为亮
+	ui_state_t *ui_state; 
+	ui_state = Ui_stateGet();                         	//获取ui的状态
+	key = Key_getKey();                           		//获取按键状态
+	debug(WARN,"ui page : %d,ui state : %d",ui_state->ui_page,ui_state->ui_power);
+	
+	if( UI_POWER_ON == ui_state->ui_power )           //屏的状态为亮
 	{
-		key = Key_getKey();                           	//获取按键状态
-		switch(key->key_state){
-//			case KEY_SHORT_PRESS:                           //短按
-//				switch(key->key_id){
-//					case KEY_HOME_ID:
-//					ui_state->ui_page = ui_state->ui_page<<1; //下一页
-//					if(ui_state->ui_page > UI_LAST_PAGE)		//如果大于于最后一页
-//					{
-//					ui_state->ui_page = UI_FIRST_PAGE;		//切换到最后一页
-//					}
-
-
-//					//APP打开心率血压测量时，禁止置页，保证程序整体逻辑性
-//					if(PROTOCOL_OPEN_PULSE_BP == Protocol_getPulseBPOpenState())
-//					{
-//					//do nothing 
-//					}
-//					else  //PROTOCOL_CLOSE_PULSE_BP == Protocol_getPulseBPOpenState()
-//					{
-//					Ui_postPage(ui_state->ui_page);		  		//触发UI页
-//					}
-
-
-//					break;
-//					default:
-//					//do nothing
-//					break;
-//				}
-				break;
-			case KEY_LONG_PRESS:                            	//长按
-				switch(key->key_id){							//长按右键，息屏
-					case KEY_RIGHT_ID:
-						xEventGroupSetBits(app_event,APP_OLED_DOWN_EVENT);
-						break;
-					case KEY_MENU_ID:							//如果不在home,到home页面
-						if(UI_HOME_PAGE != ui_state.ui_page)
-							xEventGroupSetBits(app_event,APP_HOME_EVENT);
-						break;
-				}
-				break;
-			default:
-			//do nothing
-				break;
+		if(KEY_SHORT_PRESS == key->key_state)				//短按
+		{	
+			switch(key->key_id){
+				case KEY_MENU_ID:						//按MENU
+					switch(ui_state->ui_page){
+						case UI_HOME_PAGE:
+							
+							break;
+						case UI_PATTERN_1_PAGE:
+							Ui_postPage(UI_DETECTION1_PAGE);
+							break;
+						case UI_PATTERN_2_PAGE:
+							Ui_postPage(UI_DETECTION2_PAGE);
+							break;
+						case UI_SET_PAGE:
+							Ui_postPage(UI_SET_SUB_PAGE);
+							break;
+						case UI_FILE_PAGE:
+							Ui_postPage(UI_FILE_SUB_PAGE);
+							break;
+						case UI_DETECTION1_PAGE:
+							
+							break;
+						case UI_DETECTION2_PAGE:
+							
+							break;
+						case UI_SET_SUB_PAGE:
+							
+							break;
+						case UI_FILE_SUB_PAGE:
+							
+							break;
+						case UI_SET_TIME_PAGE:
+							
+							break;
+						case UI_SET_LAG_PAGE:
+							
+							break;
+						case UI_SET_SD_PAGE:
+							
+							break;
+					}
+					break;
+				case KEY_LEFT_ID:						//按左键
+					switch(ui_state->ui_page){
+						case UI_HOME_PAGE:
+							Ui_postPage(UI_FILE_PAGE);
+							break;
+						case UI_PATTERN_1_PAGE:
+							Ui_postPage(UI_HOME_PAGE);
+							break;
+						case UI_PATTERN_2_PAGE:
+							Ui_postPage(UI_PATTERN_1_PAGE);
+							break;
+						case UI_SET_PAGE:
+							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_FILE_PAGE:
+							Ui_postPage(UI_SET_PAGE);
+							break;
+						
+						case UI_DETECTION1_PAGE:
+							
+							break;
+						case UI_DETECTION2_PAGE:
+							
+							break;
+						case UI_SET_SUB_PAGE:
+							
+							break;
+						case UI_FILE_SUB_PAGE:
+							
+							break;
+						case UI_SET_TIME_PAGE:
+							
+							break;
+						case UI_SET_LAG_PAGE:
+							
+							break;
+						case UI_SET_SD_PAGE:
+							
+							break;
+					}
+					break;
+				case KEY_RIGHT_ID:						//按右键
+					switch(ui_state->ui_page){
+						case UI_HOME_PAGE:
+							Ui_postPage(UI_PATTERN_1_PAGE);
+							break;
+						case UI_PATTERN_1_PAGE:
+							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_PATTERN_2_PAGE:
+							Ui_postPage(UI_SET_PAGE);
+							break;
+						case UI_SET_PAGE:
+							Ui_postPage(UI_FILE_PAGE);
+							break;
+						case UI_FILE_PAGE:
+							Ui_postPage(UI_HOME_PAGE);
+							break;
+				////////////////////////////////////////////////////	
+						case UI_DETECTION1_PAGE:
+							Ui_postPage(UI_PATTERN_1_PAGE);	
+							break;
+						case UI_DETECTION2_PAGE:
+							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_SET_SUB_PAGE:
+							Ui_postPage(UI_SET_PAGE);
+							break;
+						case UI_FILE_SUB_PAGE:
+							Ui_postPage(UI_FILE_PAGE);
+							break;
+						/////////////////////////////////////////
+						case UI_SET_TIME_PAGE:
+							
+							break;
+						case UI_SET_LAG_PAGE:
+							
+							break;
+						case UI_SET_SD_PAGE:
+							
+							break;
+					}
+					break;
+			}
 		}
-		Key_clearState(key);						//清除按键状态	
+		else if(KEY_LONG_PRESS == key->key_state)				//长按
+		{             										
+			switch(key->key_id){								//长按右键，息屏
+				case KEY_RIGHT_ID:
+					xEventGroupSetBits(app_event,APP_OLED_DOWN_EVENT);
+					break;
+				case KEY_MENU_ID:									//如果不在home,到home页面
+					if(UI_HOME_PAGE != ui_state->ui_page)
+						xEventGroupSetBits(app_event,APP_HOME_EVENT);
+					break;
+			}
+		}
 	}
-  else if( UI_POWER_OFF == ui_state.ui_power )     //屏的状态为熄灭
-  {
-//    key = Key_getKey();                           	//获取按键状态
-//    switch(key->key_state)
-//    {
-//    case KEY_SHORT_PRESS:                         //短按	
-//      //初始化屏
-//      ui_state->ui_page = UI_HOME_PAGE;           //设置main_page
-//      ui_state->ui_power = UI_POWER_ON;           //屏的电源打开
-//      Ui_postPage(ui_state->ui_page);             //触发UI页	
-//      Key_clearState(key);                        //清除按键状态				
-//      break;
-//    case KEY_LONG_PRESS:
-//      switch(key->key_id)
-//      {
-//      case KEY_HOME_ID:
-//        App_postEvent(APP_POWER_DOWN_ENENT);
-//        break;
-//      }
-//      Key_clearState(key);                          //清除按键状态	
-//      break;
-//    }
-  }
+	else if( UI_POWER_OFF == ui_state->ui_power )     	//屏的状态为熄灭
+	{
+		ui_state->ui_power = UI_POWER_ON;
+		debug(WARN,"收到息屏事件");
+		Set_Display_On_Off(UI_POWER_ON);
+	}
+	Key_clearState(key);								//清除按键状态	
 }
 /**********************************************************************************************************
 * 函数名：       App_alarmHandler
@@ -150,6 +234,7 @@ void App_keyHandler(void)
 **********************************************************************************************************/
 void App_alarmHandler(void)
 {
+	debug(WARN,"闹钟事件");
 //  Motor_ON(MOROT_INTENSITY_3,3);  //开机，马达震动3次
 }
 
@@ -164,11 +249,12 @@ void App_alarmHandler(void)
 **********************************************************************************************************/
 void App_powerOnHandler(void)
 {
+	debug(WARN,"收到亮屏事件");
 //  Motor_ON(MOROT_INTENSITY_3,1);  //开机，马达震动1次
 //  Pedometer_startSoftTimer();//启动app_timer ,移到MPU6050读ID函数中
 //  Ui_showAdvertPage();             //开机广告
 //  delay_ms(2000);
-//  Ui_postPage(UI_HOME_PAGE);
+	Ui_postPage(UI_HOME_PAGE);
 //  
 }
 /**********************************************************************************************************
@@ -181,12 +267,11 @@ void App_powerOnHandler(void)
 **********************************************************************************************************/
 void App_powerDownHandler(void)
 {
-//  OLED_displayOff();
-//  Hp_6_PowerOFF();
-//  Pedometer_stopSoftTimer();
-//  Battery_stopSoftTimer();
-//  Motor_ON(MOROT_INTENSITY_3,1);	//关机，马达震动1次
-//  Power_down();  //待机模式
+	ui_state_t *ui_state; 
+	ui_state = Ui_stateGet();                         //获取ui的状态
+	ui_state->ui_power = UI_POWER_OFF;
+	debug(WARN,"收到息屏事件");
+	Set_Display_On_Off(UI_POWER_OFF);
 }
 /**********************************************************************************************************
 * 函数名：       App_batteryDetectHandler
@@ -198,6 +283,7 @@ void App_powerDownHandler(void)
 **********************************************************************************************************/
 void App_batteryDetectHandler(void)
 {
+	debug(WARN,"电池检测事件");
   batteryState_t *batteryState;
   batteryState = Battery_getState();
   //Momo 屏蔽着两句为了避免充电时刷屏，屏蔽后，功能效果为:插上充电下不会立即显示充电UI，而是按按键才显示

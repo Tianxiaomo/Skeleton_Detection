@@ -31,6 +31,7 @@ Skeleton_Detection
 #include "app_task.h"
 //#include "bluetooth.h"
 //#include "pedometer.h"
+#include "log.h"
 /***********************************************************************************************************************
 * CONSTANTS
 */
@@ -109,7 +110,7 @@ void Ui_init(void)
 						(TimerCallbackFunction_t)Ui_timerHandler); //周期定时器，周期6s(6000个时钟节拍)，单次模式
   //UI线程软定时器,定时周期为6s，定时时间到就关闭屏,注意该定时时间需要大于等于5s,目的是放置测量心率、血压时会暗屏
 }
-/*************************************************************************************************************
+/*******************************************************************************
 * 函数名：   Ui_startSoftTimer
 * 功能描述： 打开软定时器，定时时间到，进入软定时中断
 * 作者：     Momo	
@@ -144,55 +145,30 @@ void Ui_stateSet(u32 ui_page,u8 ui_power)
 * 返回值说明：
 * 修改记录：
 *******************************************************************************/
-ui_state_t Ui_stateGet(void)
+ui_state_t *Ui_stateGet(void)
 {
-  return ui_state;
+  return &ui_state;
 }
-/*************************************************************************************************************
+/********************************************************************************
 * 函数名：  Ui_postPage
 * 功能描述：置页,
 * 作者：    Momo	
 * 参数说明：	 
 * 返回值说明：
 * 修改记录：
-*************************************************************************************************************/
+***********************************************************************************/
 void Ui_postPage(u32 page)	 
 {
 	xEventGroupSetBits(ui_event,page);
-	
-  //  Momo屏蔽的原因：使用APP测量心率血压时，不能通过这种方法来禁止按键切换页面
-  //  if(PROTOCOL_OPEN_PULSE_BP == Protocol_getPulseBPOpenState())
-  //    {
-  //      page = 0;//do nothing 
-  //    }
-  //    else  //PROTOCOL_CLOSE_PULSE_BP == Protocol_getPulseBPOpenState()
-  //    {
-  //		OSSemPost(uiSem);	  //发送信号量	  
-  //		ui_page |= page;
-  //    }  
 }
-/*************************************************************************************************************
-* 函数名：  App_delPage
-* 功能描述：删除页
-* 作者：    Momo	
-* 参数说明：	 
-* 返回值说明：
-* 修改记录：
-*************************************************************************************************************/
-void Ui_delPage(u32 page)	 
-{ 
-  ui_page &= ~(page);
-}
-
-
-/*************************************************************************************************************
+/**********************************************************************************
 * 函数名：  Ui_clearScreen
 * 功能描述：清屏
 * 作者：    Momo	
 * 参数说明：	 
 * 返回值说明：
 * 修改记录：
-*************************************************************************************************************/
+*************************************************************************************/
 void Ui_clearScreen(void)
 {
 //  OLED_clear();
@@ -258,9 +234,16 @@ static void Ui_ShowMainPage(void)
 	u8 uiBuf[40];
 	dateAndTime_t *dateAndTime; 		//时间&日期
 	batteryState_t *batteryState;     //获取电池状态
+	
 	Ui_clearScreen(); 
-
-
+	Ui_stateSet(UI_HOME_PAGE,UI_POWER_ON);
+	
+	debug(WARN,"显示主页");
+	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,WHITE);
+	Ui_showPicture(LOGO_ICO,13,18,100,38);						//logo显示
+	Ui_showPicture(LEFT_ICO,3,51,12,16);
+	Ui_showPicture(RIGHT_ICO,111,51,12,16);	
+	
 	/*******************<电池电量显示逻辑>*************************/	
 	batteryState = Battery_getStatus();
 	if( BATTERY_CHARGE_ING == batteryState->chargeState ) //电池充电中
@@ -344,36 +327,38 @@ static void Ui_ShowMainPage(void)
 	/*******************<获取RTC时间日期，并显示>*************************/	
 	dateAndTime = Ui_getRTC();
 	sprintf((char*)uiBuf,"%02d:%02d",dateAndTime->hour,dateAndTime->minute);
+	
+	debug(WARN,"时间： %s",uiBuf);
+	
 	Ui_showString(23,56,uiBuf,32,5);
-//	Show_Str(10,2,30,12,uiBuf,12,1,TIME_COLOR,BACKGROUD_COLOR,draw_point);	
 	sprintf((char*)uiBuf,"20%02d.%02d.%02d",dateAndTime->year,dateAndTime->month,dateAndTime->date); 
 	Ui_showString(33,90,uiBuf,12,10);
-	switch(dateAndTime->week)
-	{
-		case MONDAY:
-			Ui_showString(10+8*10,6,"Mon",16,3);
-			break;
-		case TUESDAY:
-			Ui_showString(10+8*10,6,"Tues",16,4);
-			break;
-		case WEDNESDAY:
-			Ui_showString(10+8*10,6,"Wed",16,3);
-			break;
-		case THURSDAY:
-			Ui_showString(10+8*10,6,"Thur",16,4);
-			break;
-		case FRIDAY:
-			Ui_showString(10+8*10,6,"Fri",16,3);
-			break;
-		case SATURDAY:
-			Ui_showString(10+8*10,6,"Sat",16,3);
-			break;
-		case SUNDAY:
-			Ui_showString(10+8*10,6,"Sun",16,3);
-			break;
-		default:
-			break;		
-	}
+//	switch(dateAndTime->week)
+//	{
+//		case MONDAY:
+//			Ui_showString(10+8*10,6,"Mon",16,3);
+//			break;
+//		case TUESDAY:
+//			Ui_showString(10+8*10,6,"Tues",16,4);
+//			break;
+//		case WEDNESDAY:
+//			Ui_showString(10+8*10,6,"Wed",16,3);
+//			break;
+//		case THURSDAY:
+//			Ui_showString(10+8*10,6,"Thur",16,4);
+//			break;
+//		case FRIDAY:
+//			Ui_showString(10+8*10,6,"Fri",16,3);
+//			break;
+//		case SATURDAY:
+//			Ui_showString(10+8*10,6,"Sat",16,3);
+//			break;
+//		case SUNDAY:
+//			Ui_showString(10+8*10,6,"Sun",16,3);
+//			break;
+//		default:
+//			break;		
+//	}
 }
 
 
@@ -401,6 +386,7 @@ static void Ui_NoPage(void)
 *******************************************************************************/
 static void Ui_ShowPattern1Page(void){
 	Ui_showPicture(PATTERY_1_ICO,31,21,64,64);//显示图标
+	ui_state.ui_page = UI_PATTERN_1_PAGE;
 }
 
 /*******************************************************************************
@@ -413,6 +399,7 @@ static void Ui_ShowPattern1Page(void){
 *******************************************************************************/
 void Ui_ShowPattern2Page(void){
 	Ui_showPicture(PATTERY_2_ICO,31,21,64,64);//显示图标
+	ui_state.ui_page = UI_PATTERN_2_PAGE;
 }
 
 /*******************************************************************************
@@ -425,6 +412,7 @@ void Ui_ShowPattern2Page(void){
 *******************************************************************************/
 void Ui_ShowSetPage(void){
 	Ui_showPicture(SET_ICO,31,21,64,64);//显示图标
+	ui_state.ui_page = UI_SET_PAGE;
 }
 
 /*******************************************************************************
@@ -437,20 +425,33 @@ void Ui_ShowSetPage(void){
 *******************************************************************************/
 void Ui_FilePage(void){
 	Ui_showPicture(FILE_ICO,31,21,64,64);//显示图标
+	ui_state.ui_page = UI_FILE_PAGE;
 }
 
 /*******************************************************************************
-* 函数名：  Ui_DetectionPage
+* 函数名：  Ui_Detection1Page
 * 功能描述：检测
 * 作者：    Momo  
 * 参数说明：  
 * 返回值说明：
 * 修改记录：
 *******************************************************************************/
-void Ui_DetectionPage(void){
-
+void Ui_Detection1Page(void){
+	Ui_showPicture(LOADING_ICO,31,21,64,64);//显示图标
+	ui_state.ui_page = UI_DETECTION1_PAGE;
 }
-
+/*******************************************************************************
+* 函数名：  Ui_Detection2Page
+* 功能描述：检测
+* 作者：    Momo  
+* 参数说明：  
+* 返回值说明：
+* 修改记录：
+*******************************************************************************/
+void Ui_Detection2Page(void){
+	Ui_showPicture(LOADING_ICO,31,21,64,64);//显示图标
+	ui_state.ui_page = UI_DETECTION2_PAGE;
+}
 /*******************************************************************************
 * 函数名：  Ui_SetSubPage
 * 功能描述：设置子页
@@ -470,6 +471,7 @@ void Ui_SetSubPage(void){
 	Ui_showString(31,65,"存储容量",16,4);
 	Ui_showPicture(ABOUT_ICO,5,85,16,16);//显示图标
 	Ui_showString(31,85,"关于",16,2);
+	ui_state.ui_page = UI_SET_SUB_PAGE;
 }
 
 /*******************************************************************************
@@ -484,7 +486,15 @@ void Ui_SetSubPage(void){
 void Ui_poll(void)
 {
 	EventBits_t EventValue;
-	EventValue = xEventGroupSetBits(ui_event,UI_ALL_PAGE); //等待信号量触发,等待page置位 
+	
+	EventValue=xEventGroupWaitBits((EventGroupHandle_t	)ui_event,		//等待信号量触发,等待page置位 
+							   (EventBits_t			)UI_ALL_PAGE,
+							   (BaseType_t			)pdTRUE,				
+							   (BaseType_t			)pdFALSE,
+							   (TickType_t			)portMAX_DELAY);
+	
+	debug(WARN,"UI事件 %d",EventValue);
+	
 	switch(EventValue){
 		case UI_HOME_PAGE:
 			Ui_ShowMainPage();
@@ -501,8 +511,11 @@ void Ui_poll(void)
 		case UI_FILE_PAGE:
 			Ui_FilePage();
 			break;
-		case UI_DETECTION_PAGE:
-			Ui_DetectionPage();
+		case UI_DETECTION1_PAGE:
+			Ui_Detection1Page();
+			break;
+		case UI_DETECTION2_PAGE:
+			Ui_Detection2Page();
 			break;
 		case UI_SET_SUB_PAGE:
 			Ui_SetSubPage();

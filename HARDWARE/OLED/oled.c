@@ -461,8 +461,6 @@ unsigned char i,j;
 			Src_Pointer++;
 		}
 	}
-	
-
 }
 void draw_point(unsigned char chXpos, unsigned char chYpos, int hwColor)//自左到右参数分别为X,Y,颜色
 {
@@ -479,17 +477,20 @@ void draw_point(unsigned char chXpos, unsigned char chYpos, int hwColor)//自左到
 }
 void display_char(unsigned char chXpos, unsigned char chYpos, unsigned char chChr, unsigned char chSize, int hwColor,int backColor,u8 mode)//自左到右参数分别为X,Y,字符，颜色
 {      	
-	uint8_t i, j, chTemp;
+	uint8_t i, j, chTemp,chNum;
 	uint8_t chYpos0 = chYpos;
 
-    for (i = 0; i < chSize; i ++) {
-		if(chSize == 12)chTemp = oled_asc2_1206[chChr - 0x20][i];
+	if(chSize == 32)chNum = 64;
+	else chNum = chSize;
+    for (i = 0; i < chNum; i ++) {   
+		if(chSize == 12)	 chTemp = oled_asc2_1206[chChr - 0x20][i];
 		else if(chSize == 16)chTemp = oled_asc2_1608[chChr - 0x20][i];
-		else if(chSize == 24);
-		
+		else if(chNum == 64) chTemp = oled_asc2_3216[chChr - 0x30][i];			
         for (j = 0; j < 8; j ++) {
-    		if (chTemp & 0x80) draw_point(chXpos, chYpos, hwColor);
-    		else if(mode) draw_point(chXpos, chYpos, backColor);				
+    		if (chTemp & 0x80) {
+				draw_point(chXpos, chYpos, hwColor);
+    		}	
+			else if(mode) draw_point(chXpos, chYpos, backColor);				
 			chTemp <<= 1;
 			chYpos ++;
 			if ((chYpos - chYpos0) == chSize) {
@@ -716,14 +717,16 @@ unsigned char i;
 	}
 	 OLED_RST_Set();
 
+	printf("addaf\r\n");
+	
 	Set_Display_Mode(0x00);			// Entire Display On Mode (0x00/0x01/0x02/0x03)
 
 	while(1)
 	{
 		Set_Display_On_Off(0x01);	// Display On (0x00/0x01)
-		delay_ms(3);
+		delay_ms(300);
 		Set_Display_On_Off(0x00);	// Display Off (0x00/0x01)
-		delay_ms(3);
+		delay_ms(300);
 	}
 }
 

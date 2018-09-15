@@ -48,14 +48,33 @@ typedef struct
 #define UI_PATTERN_2_PAGE       0X0004
 #define UI_SET_PAGE             0X0008
 #define UI_FILE_PAGE            0X0010
-#define UI_DETECTION_PAGE       0X0020
-#define UI_SET_SUB_PAGE         0X0040
-#define UI_FILE_SUB_PAGE        0X0080
-#define UI_SET_TIME_PAGE		0X0100
-#define UI_SET_LAG_PAGE		  	0X0200
-#define UI_SET_SD_PAGE			0X0400
+#define UI_DETECTION1_PAGE      0X0020
+#define UI_DETECTION2_PAGE      0X0040
+
+#define UI_SET_SUB_PAGE         0X0100
+#define UI_FILE_SUB_PAGE        0X0200
+#define UI_SET_TIME_PAGE		0X0400
+#define UI_SET_LAG_PAGE		  	0X0800
+#define UI_SET_SD_PAGE			0X1000
 #define UI_ALL_PAGE			  	0XFFFF
 
+////一级菜单
+//#define UI_HOME_PAGE            0X000001
+//#define UI_PATTERN_1_PAGE       0X000002
+//#define UI_PATTERN_2_PAGE       0X000004
+//#define UI_SET_PAGE             0X000008
+//#define UI_FILE_PAGE            0X000010
+//#define UI_ALL_FIRST			0X0000FF
+////二级菜单		
+//#define UI_DETECTION_PAGE       0X000100
+//#define UI_SET_SUB_PAGE         0X000200
+//#define UI_FILE_SUB_PAGE        0X000400
+////三级菜单
+//#define UI_SET_TIME_PAGE		0X001000
+//#define UI_SET_LAG_PAGE		  	0X002000
+//#define UI_SET_SD_PAGE			0X004000
+					
+				
 
 #define BATTERY_JPG_10			"0:/SYSTEM/ICO/battery-10.jpg"
 #define BATTERY_JPG_20			"0:/SYSTEM/ICO/battery-20.jpg"
@@ -83,22 +102,25 @@ typedef struct
 #define PATTERY_1_ICO	"0:/SYSTEM/ICO/detection-1.jpg"
 #define PATTERY_2_ICO	"0:/SYSTEM/ICO/detection-2.jpg"
 #define PATTERY_3_ICO	"0:/SYSTEM/ICO/detection-3.jpg"
-#define SET_ICO			"0:/SYSTEM/ICO/seting.jpg"
+#define SET_ICO			"0:/SYSTEM/ICO/settings.jpg"
 #define FILE_ICO		"0:/SYSTEM/ICO/folder.jpg"
 #define LOADING_ICO		"0:/SYSTEM/ICO/autorenew.jpg"
 
-#define TIME_ICO		"0:/SYSTEM/ICO/ac-timer.jpg"
+#define LEFT_ICO		"0:/SYSTEM/ICO/chevron-left.jpg"
+#define RIGHT_ICO		"0:/SYSTEM/ICO/chevron-right.jpg"
+
+#define TIME_ICO		"0:/SYSTEM/ICO/av-timer.jpg"
 #define CLOCK_ICO		"0:/SYSTEM/ICO/calendar-clock.jpg"
 #define LANG_ICO		"0:/SYSTEM/ICO/language.jpg"
-#define CONTENT_ICO		"0:/SYSTEM/ICO/content-save,jpg"
+#define CONTENT_ICO		"0:/SYSTEM/ICO/content-save.jpg"
 #define ABOUT_ICO		"0:/SYSTEM/ICO/about.jpg"
 
 #define pic_wel		"0:/SYSTEM/PICTURE/1.gif"
 #define pic_menu 	"0:/SYSTEM/PICTURE/MENU.jpg"
-#define Menu_PC 			BLACK
+#define Menu_PC 			WHITE
 #define Menu_BC 			WHITE
-#define TIME_COLOR			WHITE
-#define BACKGROUD_COLOR		BLACK
+#define TIME_COLOR			BLACK
+#define BACKGROUD_COLOR		WHITE
 /*********************************************************************
  * MACROS
  */
@@ -107,7 +129,7 @@ typedef struct
  *PUBLIC FUNCTIONS DECLARE
  */
 void Ui_stateSet(u32 ui_page,u8 ui_power);
-ui_state_t Ui_stateGet(void);
+ui_state_t *Ui_stateGet(void);
 void Ui_postPage(u32 page);
 void Ui_poll(void);
 void Ui_init(void);
