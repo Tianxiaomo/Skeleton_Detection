@@ -69,16 +69,13 @@
 ## version ：1.0.0
 =======
 ### version ：1.0.0
->>>>>>> 7f10a029c7e94c50eeff0454ad1406f0b37f3a7c
 - 作者： 胡广豪
 - 功能： 增加声音采集传感器，需要添加相应的ADC驱动，OLED驱动
 - 描述：AD7192的SPI_miso脚和RDY为一个脚，如果使用软件模拟SPI可以连接一个到一个GPIO即可，如果使用硬件SPI需再连接到一个引脚作为RDY脚
 
-<<<<<<< HEAD
 ### version：1.0.1 使用freertos
 =======
 ## version：1.0.1 使用freertos
->>>>>>> 7f10a029c7e94c50eeff0454ad1406f0b37f3a7c
 - 作者：胡广豪
 - 功能：freertos调度系统
 - 描述：增加oled显示屏驱动，ui界面，功能按键等，
@@ -98,7 +95,6 @@ void SysTick_Handler(void)
   HAL_IncTick();
 }
 ```
-<<<<<<< HEAD
 ### version：1.0.2按键时间修改
 
 - 作者：胡广豪
@@ -113,8 +109,15 @@ void SysTick_Handler(void)
   当只检测到一次是，定义为误触
   home键，长按到home页面，右键长按息屏，
   ```
-
+### version：1.1.0 UI界面实现
+- 作者：胡广豪
+- 功能：UI,OLED驱动优化
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbff6ty7oj303s03qaa3.jpg)
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfhtj0hzj303r03pwec.jpg)
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfi2zllcj303r03u745.jpg)
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfibl04mj303r03pa9z.jpg)
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfijo0dsj303r03rmx0.jpg)
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfjb4dl7j303o03pglg.jpg)
+![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfjqng3dj303n03s746.jpg)
   
 
-=======
->>>>>>> 7f10a029c7e94c50eeff0454ad1406f0b37f3a7c
