@@ -25,6 +25,7 @@ Skeleton_Detection
 #include "malloc.h"
 #include "exfuns.h"
 #include "ui.h"
+#include "app_time.h"
 //#include "watchInfo.h"
 //#include "protocol.h"
 //#include "power.h"
@@ -83,7 +84,8 @@ void App_init()
 	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,WHITE);		
  	debug(DEBUG,"oled ok");
 	Ui_init();
-	
+	App_Time_Show_Init();
+							
 	my_mem_init(SRAMIN);			//初始化内部内存池
 	while(SD_Init())				//检测不到SD卡
 	{
@@ -130,8 +132,8 @@ void App_task(void *pvParameters)
 		case APP_KEY_EVENT:
 			App_keyHandler();
 			break;
-		case APP_ALARM_EVENT:
-			App_alarmHandler();
+		case APP_TIME_SHOW_EVENT:
+			App_timeshowHandler();
 			break;
 		case APP_BATTERY_DETECT_EVENT:
 			App_batteryDetectHandler();

@@ -16,16 +16,9 @@ Skeleton_Detection
 #include "led.h"
 #include "ui.h"
 #include "app_task.h"
-//#include "protocol.h"
-//#include "motor.h"
-//#include "power.h"
 #include "oled.h"
-//#include "battery.h"
-//#include "pedometer.h"
-//#include "watchInfo.h"
-//#include "hp6.h"
+#include "rtc.h"
 #include "battery.h"
-//#include "ui.h"
 #include "delay.h"
 #include "log.h"
 /***********************************************************************************************************************
@@ -232,10 +225,15 @@ void App_keyHandler(void)
 * 返回值说明：	  none
 * 修改记录： 
 **********************************************************************************************************/
-void App_alarmHandler(void)
+void App_timeshowHandler(void)
 {
-	debug(WARN,"闹钟事件");
-//  Motor_ON(MOROT_INTENSITY_3,3);  //开机，马达震动3次
+	u8 uiBuf[10];
+	dateAndTime_t *dateAndTime;
+	debug(WARN,"更新显示时间事件");
+	dateAndTime = RTC_getDateAndTime();
+	sprintf((char*)uiBuf,"%02d:%02d",dateAndTime->hour,dateAndTime->minute);
+	debug(WARN,"时间： %s",uiBuf);
+	Ui_showString(1,2,uiBuf,12,5);
 }
 
 
