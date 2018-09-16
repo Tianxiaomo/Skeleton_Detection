@@ -1,60 +1,64 @@
-///////////////////////////////////////////////////////////////////
+/***********************************************************************************************************************
+项目名称文件名
+文件名:        oled.c
+描述   :       显示屏
+版本   :       V1.1
+修改   :   
+完成日期：     2018.9.1
+************************************************************************************************************************/
 
-
+/***********************************************************************************************************************
+* INCLUDES
+*/
 #include "oled.h"
 #include "stdlib.h"
 #include "oledfont.h"  	 
 #include "delay.h"
-//#include "gimage.h"
 
-
+/***********************************************************************************************************************
+* CONSTANTS
+*/
 //LCD的画笔颜色和背景色	   
 u16 POINT_COLOR=0x0000;	//画笔颜色
 u16 BACK_COLOR=0xFFFF;  //背景色 
-  
+
+/***********************************************************************************************************************
+* TYPEDEFS
+*/
+
+/***********************************************************************************************************************
+* LOCAL VARIABLES
+*/
 //管理LCD重要参数
 //默认为竖屏
 _oled_dev oleddev;
+SPI_HandleTypeDef SPI1_Handler;
+
+/***********************************************************************************************************************
+* LOCAL FUNCTIONS  DECLARE
+*/
+void SPI1_WriteByte(u8 TxData);
+
+/***********************************************************************************************************************
+* LOCAL FUNCTIONS  
+*/
+/***********************************************************************************************************************
+* PUBLIC FUNCTIONS
+*/
 
 void Write_Command(unsigned char Data)
 {
-unsigned char i;
-
 	OLED_CS_Clr();
-	delay_us(1);
 	OLED_RS_Clr();
-	for (i=0; i<8; i++)
-	{
-		OLED_SCLK_Clr();
-		if(Data&0x80)
-		   OLED_SDIN_Set();
-		else 
-		   OLED_SDIN_Clr();
-		Data = Data << 1;
-		OLED_SCLK_Set();
-		delay_us(1);
-	}
+	SPI1_WriteByte(Data);
 	OLED_RS_Set();
 }
 
 void Write_Data(unsigned char Data)
-{unsigned char i;
-
+{
 	OLED_CS_Clr();	
-	delay_us(1);
 	OLED_RS_Set();
-	delay_us(1);
-	for (i=0; i<8; i++)
-	{
-		OLED_SCLK_Clr();
-		if(Data&0x80)
-		   OLED_SDIN_Set();
-		else 
-		   OLED_SDIN_Clr();
-		Data = Data << 1;
-		OLED_SCLK_Set();
-		delay_us(1);
-	}
+	SPI1_WriteByte(Data);
 	OLED_RS_Set();
 }
 
@@ -370,7 +374,10 @@ unsigned char i,j;
 		}
 	}
 }
-
+void Fill_Block_A(unsigned char a, unsigned char b, unsigned char c, unsigned char d,u16 e)
+{
+	Fill_Block(a,a+c,b,b+d,e);
+}
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //  Show Checkboard (Full Screen)
@@ -808,27 +815,40 @@ void Set_Linear_Gray_Scale_Table()
 	Write_Command(0xB9);			// Default
 }
 
-
 void OLED_Init()
 {
- 	 
  	GPIO_InitTypeDef  GPIO_Initure;
 
 	__HAL_RCC_GPIOA_CLK_ENABLE();//使能GPIOA,B时钟
 
-	GPIO_Initure.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7; //PB1,0
+	GPIO_Initure.Pin = GPIO_PIN_4|GPIO_PIN_6; //PB1,0
     GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //推挽输出
     GPIO_Initure.Pull=GPIO_PULLUP;          //上拉
     GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
     HAL_GPIO_Init(GPIOA,&GPIO_Initure);
-	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7,GPIO_PIN_SET);
-	
+	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4|GPIO_PIN_6,GPIO_PIN_SET);
+
 	__HAL_RCC_GPIOB_CLK_ENABLE();//使能GPIOA,B时钟
 
 	GPIO_Initure.Pin = GPIO_PIN_3;
 	HAL_GPIO_Init(GPIOB,&GPIO_Initure);
   	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_SET);
 
+	SPI1_Handler.Instance=SPI1;                         //SP5
+    SPI1_Handler.Init.Mode=SPI_MODE_MASTER;             //设置SPI工作模式，设置为主模式
+    SPI1_Handler.Init.Direction=SPI_DIRECTION_2LINES;   	//设置SPI单向或者双向的数据模式:SPI设置为双线模式
+    SPI1_Handler.Init.DataSize=SPI_DATASIZE_8BIT;       //设置SPI的数据大小:SPI发送接收8位帧结构
+    SPI1_Handler.Init.CLKPolarity=SPI_POLARITY_HIGH;    //串行同步时钟的空闲状态为高电平
+    SPI1_Handler.Init.CLKPhase=SPI_PHASE_2EDGE;         //串行同步时钟的第二个跳变沿（上升或下降）数据被采样
+    SPI1_Handler.Init.NSS=SPI_NSS_SOFT;                 //NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制
+    SPI1_Handler.Init.BaudRatePrescaler=SPI_BAUDRATEPRESCALER_4;//定义波特率预分频的值:波特率预分频值为256
+    SPI1_Handler.Init.FirstBit=SPI_FIRSTBIT_MSB;        //指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始
+    SPI1_Handler.Init.TIMode=SPI_TIMODE_DISABLE;        //关闭TI模式
+    SPI1_Handler.Init.CRCCalculation=SPI_CRCCALCULATION_DISABLE;//关闭硬件CRC校验
+    SPI1_Handler.Init.CRCPolynomial=7;                  //CRC值计算的多项式
+    HAL_SPI_Init(&SPI1_Handler);						//初始化
+    
+    __HAL_SPI_ENABLE(&SPI1_Handler);                    //使能SPI5	
 	
 	OLED_RST_Clr();
 		delay_ms(1);
@@ -871,22 +891,38 @@ void OLED_Init()
 	oleddev.width = 128;
 	oleddev.height = 128;
 	oleddev.dir		= 0;
-	
-	
-//		u16 width;			//LCD 宽度
-//	u16 height;			//LCD 高度
-//	u16 id;				//LCD ID
-//	u8  dir;			//横屏还是竖屏控制：0，竖屏；1，横屏。	
-//	u16	wramcmd;		//开始写gram指令
-//	u16  setxcmd;		//设置x坐标指令
-//	u16  setycmd;		//设置y坐标指令 
 }
 
 
 
+//SPI5底层驱动，时钟使能，引脚配置
+//此函数会被HAL_SPI_Init()调用
+//hspi:SPI句柄
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
+{
+    GPIO_InitTypeDef GPIO_Initure;
+    
+    __HAL_RCC_GPIOA_CLK_ENABLE();       //使能GPIOF时钟
+    __HAL_RCC_SPI1_CLK_ENABLE();        //使能SPI5时钟
+    
+    //PF7,8,9
+    GPIO_Initure.Pin=GPIO_PIN_5|GPIO_PIN_7;
+    GPIO_Initure.Mode=GPIO_MODE_AF_PP;              //复用推挽输出
+    GPIO_Initure.Pull=GPIO_PULLUP;                  //上拉
+    GPIO_Initure.Speed=GPIO_SPEED_FAST;             //快速            
+    GPIO_Initure.Alternate=GPIO_AF5_SPI1;           //复用为SPI5
+    HAL_GPIO_Init(GPIOA,&GPIO_Initure);
+}
 
 
+//SPI5 读写一个字节
+//TxData:要写入的字节
+//返回值:读取到的字节
+void SPI1_WriteByte(u8 TxData)
+{
+	HAL_SPI_Transmit(&SPI1_Handler,&TxData,1,1000);
+}
 
-
-
+/***********************************************************************************************************************
+************************************************************************************************************************/
 

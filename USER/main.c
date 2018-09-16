@@ -7,6 +7,8 @@
 #include "app_task.h"
 #include "usart.h"
 #include "log.h"
+
+#include "oled.h"
 /*******************************************************************************
  * CONSTANTS
  */
@@ -40,8 +42,6 @@ static void start_task(void *pvParameters);
 
 int main(void)
 {	
-//	Stm32_Clock_Init(192,8,2,4);//设置时钟,168Mhz
-//	delay_init(100);			        //初始化延时函数
 	HAL_Init();
 	Stm32_Clock_Init(192,8,2,4);   	//设置时钟,180Mhz
 	delay_init(100);		//初始化延时函数

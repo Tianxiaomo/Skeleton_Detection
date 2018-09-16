@@ -129,6 +129,8 @@ void Set_Command_Lock(unsigned char d);
 void Draw_Rectangle(unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f, unsigned char g);
 void Fill_RAM(unsigned char a, unsigned char b);
 void Fill_Block(unsigned char a, unsigned char b, unsigned char c, unsigned char d, u16 e);
+void Fill_Block_A(unsigned char a, unsigned char b, unsigned char c, unsigned char d,u16 e);
+
 void OLED_Fill_Color(u16 x,u16 y,u16 width,u16 height,u16 *color);
 void Checkerboard(void);
 void Rainbow(void);

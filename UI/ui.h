@@ -43,16 +43,20 @@ typedef struct
 
 #define UI_PAGE_SIZE            12
 #define UI_NO_PAGE              0X8000
+
+#define UI_FIRST_PAGE			0X001F
 #define UI_HOME_PAGE            0X0001
 #define UI_PATTERN_1_PAGE       0X0002
 #define UI_PATTERN_2_PAGE       0X0004
 #define UI_SET_PAGE             0X0008
 #define UI_FILE_PAGE            0X0010
+
+#define UI_SECOND_PAGE			UI_DETECTION1_PAGE|UI_DETECTION2_PAGE|UI_SET_SUB_PAGE|UI_FILE_SUB_PAGE
 #define UI_DETECTION1_PAGE      0X0020
 #define UI_DETECTION2_PAGE      0X0040
-
 #define UI_SET_SUB_PAGE         0X0100
 #define UI_FILE_SUB_PAGE        0X0200
+
 #define UI_SET_TIME_PAGE		0X0400
 #define UI_SET_LAG_PAGE		  	0X0800
 #define UI_SET_SD_PAGE			0X1000
@@ -108,6 +112,7 @@ typedef struct
 
 #define LEFT_ICO		"0:/SYSTEM/ICO/chevron-left.jpg"
 #define RIGHT_ICO		"0:/SYSTEM/ICO/chevron-right.jpg"
+#define MORE_ICO		"0:/SYSTEM/ICO/dots-horizontal.jpg"
 
 #define TIME_ICO		"0:/SYSTEM/ICO/av-timer.jpg"
 #define CLOCK_ICO		"0:/SYSTEM/ICO/calendar-clock.jpg"

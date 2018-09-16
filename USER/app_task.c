@@ -77,13 +77,13 @@ void App_init()
 	
 	LED_Init();						//初始化与LED连接的硬件接口
 	Key_Init();						//初始化按键
-//	RTC_Init();						//RTC初始化
+	RTC_Init();						//RTC初始化
 	OLED_Init();					//初始化OLED屏
 	piclib_init();					//初始化画图
-							
+	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,WHITE);		
  	debug(DEBUG,"oled ok");
 	Ui_init();
-										
+	
 	my_mem_init(SRAMIN);			//初始化内部内存池
 	while(SD_Init())				//检测不到SD卡
 	{
