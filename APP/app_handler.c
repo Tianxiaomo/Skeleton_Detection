@@ -122,19 +122,25 @@ void App_keyHandler(void)
 						case UI_PATTERN_2_PAGE:
 							Ui_postPage(UI_PATTERN_1_PAGE);
 							break;
-						case UI_SET_PAGE:
+						case UI_PATTERN_3_PAGE:
 							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_SET_PAGE:
+							Ui_postPage(UI_PATTERN_3_PAGE);
 							break;
 						case UI_FILE_PAGE:
 							Ui_postPage(UI_SET_PAGE);
 							break;
-						
 						case UI_DETECTION1_PAGE:
-							
+							Ui_postPage(UI_DETECT_1_PAGE);
+							break;
+						case UI_DETECT_1_PAGE:
+							Ui_postPage(UI_DETECT_1_PAGE);
 							break;
 						case UI_DETECTION2_PAGE:
-							
+							Ui_postPage(UI_DETECT_2_PAGE);
 							break;
+						
 						case UI_SET_SUB_PAGE:
 							
 							break;
@@ -161,7 +167,10 @@ void App_keyHandler(void)
 							Ui_postPage(UI_PATTERN_2_PAGE);
 							break;
 						case UI_PATTERN_2_PAGE:
-							Ui_postPage(UI_SET_PAGE);
+							Ui_postPage(UI_PATTERN_3_PAGE);
+							break;
+						case UI_PATTERN_3_PAGE:
+							Ui_postPage(UI_SET_PAGE);						
 							break;
 						case UI_SET_PAGE:
 							Ui_postPage(UI_FILE_PAGE);
@@ -175,6 +184,18 @@ void App_keyHandler(void)
 							break;
 						case UI_DETECTION2_PAGE:
 							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_DETECTION3_PAGE:
+							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_DETECT_1_PAGE:
+							Ui_postPage(UI_PATTERN_1_PAGE);
+							break;
+						case UI_DETECT_2_PAGE:
+							Ui_postPage(UI_PATTERN_2_PAGE);
+							break;
+						case UI_DETECT_3_PAGE:
+							Ui_postPage(UI_PATTERN_3_PAGE);
 							break;
 						case UI_SET_SUB_PAGE:
 							Ui_postPage(UI_SET_PAGE);
@@ -200,11 +221,11 @@ void App_keyHandler(void)
 		{             										
 			switch(key->key_id){								//长按右键，息屏
 				case KEY_RIGHT_ID:
-					xEventGroupSetBits(app_event,APP_OLED_DOWN_EVENT);
+						xEventGroupSetBits(app_event,APP_OLED_DOWN_EVENT);
 					break;
 				case KEY_MENU_ID:									//如果不在home,到home页面
 					if(UI_HOME_PAGE != ui_state->ui_page)
-						xEventGroupSetBits(app_event,APP_HOME_EVENT);
+						Ui_postPage(UI_HOME_PAGE);
 					break;
 			}
 		}
@@ -212,7 +233,7 @@ void App_keyHandler(void)
 	else if( UI_POWER_OFF == ui_state->ui_power )     	//屏的状态为熄灭
 	{
 		ui_state->ui_power = UI_POWER_ON;
-		debug(WARN,"收到息屏事件");
+		debug(WARN,"收到亮屏事件");
 		Set_Display_On_Off(UI_POWER_ON);
 	}
 	Key_clearState(key);								//清除按键状态	
@@ -282,11 +303,53 @@ void App_powerDownHandler(void)
 void App_batteryDetectHandler(void)
 {
 	debug(WARN,"电池检测事件");
-  batteryState_t *batteryState;
-  batteryState = Battery_getState();
+//  batteryState_t *batteryState;
+//  batteryState = 
+	Battery_getState();
   //Momo 屏蔽着两句为了避免充电时刷屏，屏蔽后，功能效果为:插上充电下不会立即显示充电UI，而是按按键才显示
  // if(BATTERY_CHARGE_ING == batteryState->chargeState)   //如果检测到充电，立即出发UI主页，显示正在充电
  // 	Ui_postPage(UI_HOME_PAGE); //显示UI主页
+}
+
+/**********************************************************************************************************
+* 函数名：       App_detect1Handler
+* 功能描述：	  检测模式1
+* 作者：		  Momo  
+* 参数说明：	  none
+* 返回值说明：	  none
+* 修改记录： 
+**********************************************************************************************************/
+void App_detect1Handler(void)
+{
+	debug(WARN,"检测模式1");
+}
+
+/**********************************************************************************************************
+* 函数名：       App_detect2Handler
+* 功能描述：	  检测模式2
+* 作者：		  Momo  
+* 参数说明：	  none
+* 返回值说明：	  none
+* 修改记录： 
+**********************************************************************************************************/
+void App_detect2Handler(void)
+{
+	debug(WARN,"检测模式2");
+
+}
+
+/**********************************************************************************************************
+* 函数名：       App_detect3Handler
+* 功能描述：	  检测模式3
+* 作者：		  Momo  
+* 参数说明：	  none
+* 返回值说明：	  none
+* 修改记录： 
+**********************************************************************************************************/
+void App_detect3Handler(void)
+{
+	debug(WARN,"检测模式3");
+
 }
 
 /***********************************************************************************************************************

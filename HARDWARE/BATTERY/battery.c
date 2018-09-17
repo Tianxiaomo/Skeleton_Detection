@@ -66,7 +66,6 @@ void Battery_standByPinInit(void);
 **********************************************************************************************************/
 void Battery_init(void)
 {
-	u8 err;
 	MY_ADC_Init();
 
 	Battery_standByPinInit();  //初始化IO口，用于检测充电是否完成

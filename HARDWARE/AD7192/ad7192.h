@@ -132,9 +132,9 @@ extern unsigned long int AD7192Data;
 //No Operation
 #define	NOP						0x00									
  
-#define SPI_IN 			GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_0) //PD3
-#define SPI_CS_LOW  	GPIO_ResetBits(GPIOB,GPIO_Pin_6)
-#define SPI_CS_HIGH  	GPIO_SetBits(GPIOB,GPIO_Pin_6)
+#define SPI_IN 			HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_6)
+#define SPI_CS_LOW  	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET)
+#define SPI_CS_HIGH  	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET)
 
 unsigned char WriteToAD7192ViaSPI(const unsigned char RegisterStartAddress, const unsigned char NumberOfRegistersToWrite, unsigned long int *DataBuffer, const unsigned char OffsetInBuffer);
 unsigned char ReadFromAD7192ViaSPI(const unsigned char RegisterStartAddress, const unsigned char NumberOfRegistersToRead, unsigned long int *DataBuffer, const unsigned char OffsetInBuffer);

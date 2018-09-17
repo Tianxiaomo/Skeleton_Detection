@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F411xE</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\OBJ;..\USER;..\HALLIB\STM32F4xx_HAL_Driver\Inc;..\PICTURE;..\TEXT;..\UI;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\MALLOC;..\USMART;..\FATFS\src;..\FATFS\exfuns;..\HARDWARE\LED;..\HARDWARE\KEY;..\HARDWARE\SDIO;..\HARDWARE\SPI;..\HARDWARE\OLED;..\HARDWARE\LOG;..\HARDWARE\RTC;..\FreeRTOS\portable\RVDS\ARM_CM4F;..\FreeRTOS\include;..\HARDWARE\BATTERY;..\HARDWARE\ADC</IncludePath>
+              <IncludePath>..\CORE;..\OBJ;..\USER;..\HALLIB\STM32F4xx_HAL_Driver\Inc;..\PICTURE;..\TEXT;..\UI;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\MALLOC;..\USMART;..\FATFS\src;..\FATFS\exfuns;..\HARDWARE\LED;..\HARDWARE\KEY;..\HARDWARE\SDIO;..\HARDWARE\SPI;..\HARDWARE\OLED;..\HARDWARE\LOG;..\HARDWARE\RTC;..\FreeRTOS\portable\RVDS\ARM_CM4F;..\FreeRTOS\include;..\HARDWARE\BATTERY;..\HARDWARE\ADC;..\APP;..\HARDWARE\AD7192;..\HARDWARE\ADXL355;..\PICTURE;..\HARDWARE\SDIO;..\PICTURE</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -614,11 +614,6 @@
               <FilePath>..\HARDWARE\SDIO\sdio_sdcard.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\SPI\spi.c</FilePath>
-            </File>
-            <File>
               <FileName>oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\OLED\oled.c</FilePath>
@@ -637,6 +632,26 @@
               <FileName>adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\ADC\adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>ad7192.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\AD7192\ad7192.c</FilePath>
+            </File>
+            <File>
+              <FileName>adxl355.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\ADXL355\adxl355.c</FilePath>
+            </File>
+            <File>
+              <FileName>myiic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\ADXL355\myiic.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\SPI\spi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -794,19 +809,19 @@
           <GroupName>APP</GroupName>
           <Files>
             <File>
-              <FileName>app_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\app_task.c</FilePath>
-            </File>
-            <File>
               <FileName>app_handler.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\app_handler.c</FilePath>
+              <FilePath>..\APP\app_handler.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\app_task.c</FilePath>
             </File>
             <File>
               <FileName>app_time.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\app_time.c</FilePath>
+              <FilePath>..\APP\app_time.c</FilePath>
             </File>
           </Files>
         </Group>

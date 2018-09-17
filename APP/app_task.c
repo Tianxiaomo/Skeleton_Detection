@@ -122,7 +122,7 @@ void App_task(void *pvParameters)
 									   (TickType_t			)portMAX_DELAY);
 		
 		EventValue &= APP_NOT_DOG;
-		debug(DEBUG,"事件 %d",EventValue);
+//		debug(DEBUG,"事件 %d",EventValue);
 		switch(EventValue)
 		{
 //		case APP_PROTOCOL_PARASE_EVENT:
@@ -141,8 +141,14 @@ void App_task(void *pvParameters)
 		case APP_OLED_ON_EVENT:
 			App_powerOnHandler();
 			break;
-//		case APP_CAL_STEP_EVENT:
-//			App_calStepHandler();
+		case APP_DETECTION_1_EVENT:
+			App_detect1Handler();
+			break;
+		case APP_DETECTION_2_EVENT:
+			App_detect2Handler();
+			break;
+		case APP_DETECTION_3_EVENT:
+			App_detect3Handler();
 			break;
 		case APP_OLED_DOWN_EVENT:
 			App_powerDownHandler();

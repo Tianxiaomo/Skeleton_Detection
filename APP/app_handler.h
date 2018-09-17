@@ -34,14 +34,16 @@ extern "C"
 	
 #define APP_HOME_EVENT					0X000004
 	
-#define APP_PROTOCOL_PARASE_EVENT       0X000004
 #define APP_KEY_EVENT                   0X000008
 #define APP_BATTERY_DETECT_EVENT        0X000010
 #define APP_TIME_SHOW_EVENT             0X000020  
-#define APP_CAL_STEP_EVENT              0X000040 
-#define APP_WATCH_DOG					0x000080
+#define APP_DETECTION_1_EVENT			0X000100
+#define APP_DETECTION_2_EVENT			0X000200
+#define APP_DETECTION_3_EVENT			0X000400
+
+#define APP_WATCH_DOG					0x000800
 #define APP_EVENT_ALL                   0XFFFFFF
-#define APP_NOT_DOG						0X00007F
+#define APP_NOT_DOG						0X0007FF
 /*********************************************************************
  * MACROS
  */
@@ -55,6 +57,9 @@ void App_powerOnHandler(void);
 void App_powerDownHandler(void);
 void App_batteryDetectHandler(void);
 void App_calStepHandler(void);
+void App_detect1Handler(void);
+void App_detect2Handler(void);
+void App_detect3Handler(void);
 
 /*********************************************************************
 *********************************************************************/

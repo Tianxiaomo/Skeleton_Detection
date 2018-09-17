@@ -7,8 +7,6 @@
 #include "app_task.h"
 #include "usart.h"
 #include "log.h"
-
-#include "oled.h"
 /*******************************************************************************
  * CONSTANTS
  */

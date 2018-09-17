@@ -9,41 +9,64 @@
 
  Hardware plateform : 	ADuC7026 and AD7190/92EBZ
 ********************************************************************************/
-#include "AD7192.h"
+/***********************************************************************************************************************
+* INCLUDES
+*/
+#include "ad7192.h"
 #include "stdio.h"
 #include "sys.h"
 #include "delay.h"
 #include "spi.h"
+/***********************************************************************************************************************
+* CONSTANTS
+*/
 
+/***********************************************************************************************************************
+* TYPEDEFS
+*/
+/***********************************************************************************************************************
+* LOCAL VARIABLES
+*/
 unsigned long int AD7192Registers[8]={0,0,0,0,0,0,0,0};		
 unsigned long int AD7192Data = 0;
+
+/***********************************************************************************************************************
+* LOCAL FUNCTIONS  DECLARE
+*/
+
+/***********************************************************************************************************************
+* LOCAL FUNCTIONS  
+*/
+
+/***********************************************************************************************************************
+* PUBLIC FUNCTIONS
+*/
 
 void AD7192Initialization(void)
 {
     unsigned char status = 1;
     unsigned char regVal = 0;
 	
-    GPIO_InitTypeDef  GPIO_InitStructure;
+    GPIO_InitTypeDef  GPIO_Initure;
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);//使能GPIOF时钟
+	__HAL_RCC_GPIOB_CLK_ENABLE();       //使能GPIOB时钟
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//普通输出模式
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//推挽输出
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;//100MHz
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;//上拉
-	GPIO_Init(GPIOB, &GPIO_InitStructure);//初始化
-
-	GPIO_SetBits(GPIOB,GPIO_Pin_6 | GPIO_Pin_7);
+	GPIO_Initure.Pin=GPIO_PIN_12|GPIO_PIN_10; //PB1,0
+    GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //推挽输出
+    GPIO_Initure.Pull=GPIO_PULLUP;          //上拉
+    GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
+    HAL_GPIO_Init(GPIOB,&GPIO_Initure);
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12|GPIO_PIN_10,GPIO_PIN_SET);	//PB0置1 
 	
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);//使能GPIOF时钟
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;//普通输出模式
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;//100MHz
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;//上拉
-	GPIO_Init(GPIOE, &GPIO_InitStructure);//初始化
+	__HAL_RCC_GPIOC_CLK_ENABLE();       //使能GPIOB时钟
+
+	GPIO_Initure.Pin = GPIO_PIN_6;
+	GPIO_Initure.Mode=GPIO_MODE_INPUT;
+	GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
+	GPIO_Initure.Pull=GPIO_PULLUP;          //上拉
+    HAL_GPIO_Init(GPIOC,&GPIO_Initure);
 	
-    MSPI_Init(0, 1000000, 1, 0);
+    SPI2_Init();
     AD7192SoftwareReset();
     
 	delay_ms(1);
@@ -404,6 +427,9 @@ SPI_CS_LOW;
 	return temp;
 }
 
+
+/***********************************************************************************************************************
+************************************************************************************************************************/
 
 
 

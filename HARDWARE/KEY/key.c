@@ -79,7 +79,7 @@ void Key_Init(void)
 
 //	软件消抖，判断点击，长按
 	key_timer_handle = xTimerCreate((const char*		)"KeyTimerTimer",
-		(TickType_t			)10,
+		(TickType_t			)20,
 		(UBaseType_t		)pdTRUE,
 		(void*				)1,
 		(TimerCallbackFunction_t)Key_timerHandler); //周期定时器，周期1s(10个时钟节拍)，周期模式

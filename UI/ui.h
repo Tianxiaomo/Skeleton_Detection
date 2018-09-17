@@ -31,6 +31,25 @@ typedef struct
 	u8  ui_power;
 }ui_state_t;
 #pragma pack()
+typedef enum
+{ 
+stop,
+detecting,
+suspend
+}detect_state;
+
+typedef enum
+{ 
+pattern_one,
+pattern_two,
+pattern_three
+}detect_pattern;
+
+typedef struct
+{
+	u8 detect_pattern;
+	detect_state detect_status;
+}detect_t;
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
@@ -38,29 +57,38 @@ typedef struct
 /*********************************************************************
  * CONSTANTS
  */
+
+
 #define UI_POWER_ON             1
 #define UI_POWER_OFF            0
 
 #define UI_PAGE_SIZE            12
 #define UI_NO_PAGE              0X8000
 
-#define UI_FIRST_PAGE			0X001F
-#define UI_HOME_PAGE            0X0001
-#define UI_PATTERN_1_PAGE       0X0002
-#define UI_PATTERN_2_PAGE       0X0004
-#define UI_SET_PAGE             0X0008
-#define UI_FILE_PAGE            0X0010
+#define UI_FIRST_PAGE			(UI_HOME_PAGE|UI_PATTERN_1_PAGE|UI_PATTERN_2_PAGE|UI_PATTERN_3_PAGE|UI_SET_PAGE|UI_FILE_PAGE)
+#define UI_HOME_PAGE            0X000001
+#define UI_PATTERN_1_PAGE       0X000002
+#define UI_PATTERN_2_PAGE       0X000004
+#define UI_PATTERN_3_PAGE       0X000008
+#define UI_SET_PAGE             0X000010
+#define UI_FILE_PAGE            0X000020
 
-#define UI_SECOND_PAGE			UI_DETECTION1_PAGE|UI_DETECTION2_PAGE|UI_SET_SUB_PAGE|UI_FILE_SUB_PAGE
-#define UI_DETECTION1_PAGE      0X0020
-#define UI_DETECTION2_PAGE      0X0040
-#define UI_SET_SUB_PAGE         0X0100
-#define UI_FILE_SUB_PAGE        0X0200
+#define UI_SECOND_PAGE			(UI_DETECTION1_PAGE|UI_DETECTION2_PAGE|UI_DETECTION3_PAGE|UI_SET_SUB_PAGE|UI_FILE_SUB_PAGE)
+#define UI_DETECTION1_PAGE      0X000040
+#define UI_DETECTION2_PAGE      0X000080
+#define UI_DETECTION3_PAGE      0X000100
+#define UI_SET_SUB_PAGE         0X000200
+#define UI_FILE_SUB_PAGE        0X000400
 
-#define UI_SET_TIME_PAGE		0X0400
-#define UI_SET_LAG_PAGE		  	0X0800
-#define UI_SET_SD_PAGE			0X1000
-#define UI_ALL_PAGE			  	0XFFFF
+
+#define UI_DETECT_1_PAGE		0X000800
+#define UI_DETECT_2_PAGE		0X001000
+#define UI_DETECT_3_PAGE		0X002000
+
+#define UI_SET_TIME_PAGE		0X004000
+#define UI_SET_LAG_PAGE		  	0X008000
+#define UI_SET_SD_PAGE			0X010000
+#define UI_ALL_PAGE			  	0XFFFFFF
 
 ////Ò»¼¶²Ëµ¥
 //#define UI_HOME_PAGE            0X000001
@@ -140,6 +168,7 @@ void Ui_poll(void);
 void Ui_init(void);
 void Ui_delPage(u32 page);	
 void Ui_showAdvertPage(void);
+void Ui_showString(u8 x,u8 y,u8 *chr,u8 Char_Size,u8 Char_Num);
 
 void Ui_Welcome(void);
 void Ui_Menu(void);
