@@ -710,33 +710,6 @@ void Sleep(unsigned char a)
 }
 
 
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//  Connection Test
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void Test()
-{
-unsigned char i;
-
-	OLED_RST_Clr();
-	for(i=0;i<200;i++)
-	{
-		delay_us(200);
-	}
-	 OLED_RST_Set();
-
-	printf("addaf\r\n");
-	
-	Set_Display_Mode(0x00);			// Entire Display On Mode (0x00/0x01/0x02/0x03)
-
-	while(1)
-	{
-		Set_Display_On_Off(0x01);	// Display On (0x00/0x01)
-		delay_ms(300);
-		Set_Display_On_Off(0x00);	// Display Off (0x00/0x01)
-		delay_ms(300);
-	}
-}
-
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //  Gray Scale Table Setting (Full Screen)

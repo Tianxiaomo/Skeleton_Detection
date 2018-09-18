@@ -57,7 +57,7 @@ void App_timeShowHandler(TimerHandle_t xTimer); 	//周期定时器回调函数
 void App_Time_Show_Init(void)
 {
 	app_time_show_handle = xTimerCreate((const char*		)"AppTimeShowTimer",
-								(TickType_t			)1000*60,
+								(TickType_t			)100000*60,
 								(UBaseType_t		)pdTRUE,
 								(void*				)1,
 								(TimerCallbackFunction_t)App_timeShowHandler); //周期定时器，周期一分钟(1000个时钟节拍)，周期模式

@@ -7,6 +7,9 @@
 #include "app_task.h"
 #include "usart.h"
 #include "log.h"
+//#include "oled.h"
+//#include "ui.h"
+//#include "piclib.h"
 /*******************************************************************************
  * CONSTANTS
  */
@@ -47,6 +50,11 @@ int main(void)
 	debug_init(ERROR,1);			//是否开启调试，打印是否带颜色
 
 	debug(DEBUG,"led ok");
+//	OLED_Init();					//初始化OLED屏
+//	piclib_init();					//初始化画图
+
+//	ai_load_picfile(pic_wel,0,0,127,127,1);
+
 		//创建开始任务
     xTaskCreate((TaskFunction_t )start_task,            //任务函数
                 (const char*    )"start_task",          //任务名称

@@ -823,6 +823,11 @@
               <FileType>1</FileType>
               <FilePath>..\APP\app_time.c</FilePath>
             </File>
+            <File>
+              <FileName>app_detect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\app_detect.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

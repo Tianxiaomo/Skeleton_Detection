@@ -530,7 +530,11 @@ u8 gif_decode(const u8 *filename,u16 x,u16 y,u16 width,u16 height)
 				if(mygif89a->gifISD.flag&0x80)gif_recovergctbl(mygif89a);//»Ö¸´È«¾ÖÑÕÉ«±í
 				if(mygif89a->delay)dtime=mygif89a->delay;
 				else dtime=10;//Ä¬ÈÏÑÓÊ±
-				while(dtime--&&gifdecoding)delay_ms(10);//ÑÓ³Ù
+//				#if SYSTEM_SUPPORT_OS 
+//				while(dtime--&&gifdecoding)vTaskDelay(10*100);//ÑÓ³Ù
+//				#else
+				while(dtime--&&gifdecoding)delay_ms(1000);//ÑÓ³Ù
+//				#endif
 				if(res==2)
 				{
 					res=0;

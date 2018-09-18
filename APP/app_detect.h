@@ -1,13 +1,14 @@
 /*******************************************************************************
 Skeleton_Detection
-文件名:        app_handler.h
-描述   : 
+文件名:        app_detect.h
+描述   :      
+
 版本   :       V1.0
 修改   :   
-完成日期：
+完成日期：     2016.10.13
 *******************************************************************************/
-#ifndef APP_HANDLER_H
-#define APP_HANDLER_H
+#ifndef APP_DETECT_H
+#define APP_DETECT_H
 
 #ifdef __cplusplus
 extern "C"
@@ -17,31 +18,46 @@ extern "C"
 /*********************************************************************
  * INCLUDES
  */
+#include "sys.h"
+#include "stm32f4xx.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "event_groups.h"
+
 /*********************************************************************
  * TYPEDEFS
  */
+typedef enum
+{ 
+start = 1,
+next_start,
+stop,
+detecting,
+suspend,
+continu,
+end
+}detect_state_t;
+
+typedef enum
+{ 
+pattern_one = 1,
+pattern_two,
+pattern_three
+}detect_pattern_t;
+
+typedef struct
+{
+	u8 detect_pattern;
+	u8 detect_status;
+}detect_t;
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
-
+extern EventGroupHandle_t app_event;
 /*********************************************************************
  * CONSTANTS
  */
-#define APP_EVENT_SIZE                  32
-#define APP_EVENT_NULL                  0X000000
-#define APP_OLED_ON_EVENT               0X000001
-#define APP_OLED_DOWN_EVENT             0X000002
-	
-#define APP_HOME_EVENT					0X000004
-	
-#define APP_KEY_EVENT                   0X000008
-#define APP_BATTERY_DETECT_EVENT        0X000010
-#define APP_TIME_SHOW_EVENT             0X000020  
-#define APP_DETECTION_EVENT				0X000100
 
-#define APP_WATCH_DOG					0x000800
-#define APP_EVENT_ALL                   0XFFFFFF
-#define APP_NOT_DOG						0X0007FF
 /*********************************************************************
  * MACROS
  */
@@ -49,16 +65,9 @@ extern "C"
 /*********************************************************************
  *PUBLIC FUNCTIONS DECLARE
  */
-void App_keyHandler(void);
-void App_timeshowHandler(void);
-void App_powerOnHandler(void);
-void App_powerDownHandler(void);
-void App_batteryDetectHandler(void);
-void App_calStepHandler(void);
-//void App_detect1Handler(void);
-//void App_detect2Handler(void);
-//void App_detect3Handler(void);
-
+void App_detectHandler(void);
+void App_detect3Handler(void);
+detect_t *get_DetectStatus(void);
 /*********************************************************************
 *********************************************************************/
 
@@ -66,4 +75,4 @@ void App_calStepHandler(void);
 }
 #endif
 
-#endif /* APP_HANDLER_H */
+#endif /* APP_TASK_H */

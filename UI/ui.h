@@ -31,25 +31,7 @@ typedef struct
 	u8  ui_power;
 }ui_state_t;
 #pragma pack()
-typedef enum
-{ 
-stop,
-detecting,
-suspend
-}detect_state;
 
-typedef enum
-{ 
-pattern_one,
-pattern_two,
-pattern_three
-}detect_pattern;
-
-typedef struct
-{
-	u8 detect_pattern;
-	detect_state detect_status;
-}detect_t;
 /*********************************************************************
 *  EXTERNAL VARIABLES
 */
@@ -62,32 +44,35 @@ typedef struct
 #define UI_POWER_ON             1
 #define UI_POWER_OFF            0
 
-#define UI_PAGE_SIZE            12
-#define UI_NO_PAGE              0X8000
+#define UI_PAGE_SIZE            19
+#define UI_NO_PAGE              0X000001
 
 #define UI_FIRST_PAGE			(UI_HOME_PAGE|UI_PATTERN_1_PAGE|UI_PATTERN_2_PAGE|UI_PATTERN_3_PAGE|UI_SET_PAGE|UI_FILE_PAGE)
-#define UI_HOME_PAGE            0X000001
-#define UI_PATTERN_1_PAGE       0X000002
-#define UI_PATTERN_2_PAGE       0X000004
-#define UI_PATTERN_3_PAGE       0X000008
-#define UI_SET_PAGE             0X000010
-#define UI_FILE_PAGE            0X000020
+#define UI_HOME_PAGE            0X000002		//主页
+#define UI_PATTERN_1_PAGE       0X000004		//模式
+#define UI_PATTERN_2_PAGE       0X000008
+#define UI_PATTERN_3_PAGE       0X000010
+#define UI_SET_PAGE             0X000020		//设置
+#define UI_FILE_PAGE            0X000030		//文件
 
 #define UI_SECOND_PAGE			(UI_DETECTION1_PAGE|UI_DETECTION2_PAGE|UI_DETECTION3_PAGE|UI_SET_SUB_PAGE|UI_FILE_SUB_PAGE)
-#define UI_DETECTION1_PAGE      0X000040
-#define UI_DETECTION2_PAGE      0X000080
-#define UI_DETECTION3_PAGE      0X000100
-#define UI_SET_SUB_PAGE         0X000200
-#define UI_FILE_SUB_PAGE        0X000400
+#define UI_DETECTION1_PAGE      0X000080
+#define UI_DETECTION2_PAGE      0X000100
+#define UI_DETECTION3_PAGE      0X000200
+#define UI_SET_SUB_PAGE         0X000400
+#define UI_FILE_SUB_PAGE        0X000800
 
 
-#define UI_DETECT_1_PAGE		0X000800
-#define UI_DETECT_2_PAGE		0X001000
-#define UI_DETECT_3_PAGE		0X002000
+#define UI_DETECT_1_PAGE		0X001000
+#define UI_DETECT_2_PAGE		0X002000
+#define UI_DETECT_3_PAGE		0X004000
 
-#define UI_SET_TIME_PAGE		0X004000
-#define UI_SET_LAG_PAGE		  	0X008000
-#define UI_SET_SD_PAGE			0X010000
+#define UI_SET_TIME_PAGE		0X008000
+#define UI_SET_LAG_PAGE		  	0X010000
+#define UI_SET_SD_PAGE			0X020000
+
+#define UI_PATTERN_1_PAGE_MENU	0X040000		//模式1，按下menu键，停止
+
 #define UI_ALL_PAGE			  	0XFFFFFF
 
 ////一级菜单
@@ -163,13 +148,15 @@ typedef struct
  */
 void Ui_stateSet(u32 ui_page,u8 ui_power);
 ui_state_t *Ui_stateGet(void);
-void Ui_postPage(u32 page);
+//void Ui_postPage(u32 page);
+void Ui_postPage(long long page);
 void Ui_poll(void);
 void Ui_init(void);
-void Ui_delPage(u32 page);	
+//void Ui_delPage(u32 page);	
+void Ui_delPage(long long page);
 void Ui_showAdvertPage(void);
 void Ui_showString(u8 x,u8 y,u8 *chr,u8 Char_Size,u8 Char_Num);
-
+void Ui_detection_sub_page(void);
 void Ui_Welcome(void);
 void Ui_Menu(void);
 /*********************************************************************

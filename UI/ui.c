@@ -22,8 +22,11 @@ Skeleton_Detection
 #include "battery.h"
 #include "app_handler.h"
 #include "app_task.h"
+#include "app_detect.h"
 #include "log.h"
 #include "piclib.h"
+#include "semphr.h"
+
 /***********************************************************************************************************************
 * CONSTANTS
 */
@@ -38,10 +41,10 @@ Skeleton_Detection
 * LOCAL VARIABLES
 */
 
-EventGroupHandle_t ui_event;
+//EventGroupHandle_t ui_event;
+SemaphoreHandle_t ui_Sem;	//二值信号量句柄
+long long ui_Event;
 TimerHandle_t 	   ui_timer;	//ui软件定时器
-detect_t DetectPattern = {0};
-//u32 ui_page;   
 ui_state_t ui_state ={0};
 /***********************************************************************************************************************
 * LOCAL FUNCTIONS  DECLARE
@@ -89,7 +92,8 @@ void Ui_timerHandler(TimerHandle_t xTimer)
 *******************************************************************************/
 void Ui_init(void)
 {
-	ui_event=xEventGroupCreate();	 		//创建UI事件标志组
+//	ui_event=xEventGroupCreate();	 		//创建UI事件标志组
+	ui_Sem = xSemaphoreCreateBinary();	
 	ui_timer=xTimerCreate((const char*		)"AutoReloadTimer",
 						(TickType_t			)6000,
 						(UBaseType_t		)pdFALSE,
@@ -144,9 +148,26 @@ ui_state_t *Ui_stateGet(void)
 * 返回值说明：
 * 修改记录：
 ***********************************************************************************/
-void Ui_postPage(u32 page)	 
-{
-	xEventGroupSetBits(ui_event,page);
+//void Ui_postPage(u32 page)	 
+//{
+//	xEventGroupSetBits(ui_event,page);
+//}
+
+void Ui_postPage(long long page){
+	xSemaphoreGive(ui_Sem);	//释放二值信号量
+	ui_Event |= page;
+}
+
+/********************************************************************************
+* 函数名：  Ui_delPage
+* 功能描述：置页,
+* 作者：    Momo	
+* 参数说明：	 
+* 返回值说明：
+* 修改记录：
+***********************************************************************************/
+void Ui_delPage(long long page){
+	ui_Event &= ~page;
 }
 /**********************************************************************************
 * 函数名：  Ui_clearScreen
@@ -156,8 +177,7 @@ void Ui_postPage(u32 page)
 * 返回值说明：
 * 修改记录：
 *************************************************************************************/
-void Ui_clearScreen(void)
-{
+void Ui_clearScreen(void){
 //  OLED_clear();
 }
 /*************************************************************************************************************
@@ -168,8 +188,7 @@ void Ui_clearScreen(void)
 * 返回值说明：
 * 修改记录：
 *************************************************************************************************************/
-dateAndTime_t* Ui_getRTC(void)	 
-{ 
+dateAndTime_t* Ui_getRTC(void)	 { 
   return RTC_getDateAndTime();
 }
 /*************************************************************************************************************
@@ -192,8 +211,7 @@ dateAndTime_t* Ui_getRTC(void)
 * 返回值说明：
 * 修改记录：
 *********************************************************************************/
-void Ui_showString(u8 x,u8 y,u8 *chr,u8 Char_Size,u8 Char_Num)
-{
+void Ui_showString(u8 x,u8 y,u8 *chr,u8 Char_Size,u8 Char_Num){
 	Show_Str(x,y,Char_Size*Char_Num,Char_Size,chr,Char_Size,1,TIME_COLOR,BACKGROUD_COLOR,draw_point);
 }
 /********************************************************************************
@@ -204,8 +222,7 @@ void Ui_showString(u8 x,u8 y,u8 *chr,u8 Char_Size,u8 Char_Num)
 * 返回值说明：
 * 修改记录：
 *********************************************************************************/
-void Ui_showPicture(const u8 *filename,u8 x,u8 y,u8 w,u8 h)
-{
+void Ui_showPicture(const u8 *filename,u8 x,u8 y,u8 w,u8 h){
 	ai_load_picfile(filename,x,y,w,h,1);
 }
 /*******************************************************************************
@@ -216,8 +233,7 @@ void Ui_showPicture(const u8 *filename,u8 x,u8 y,u8 w,u8 h)
 * 返回值说明：
 * 修改记录：
 *******************************************************************************/
-static void Ui_ShowMainPage(void)
-{
+static void Ui_ShowMainPage(void){
 	u8 uiBuf[40];
 	dateAndTime_t *dateAndTime; 		//时间&日期
 	batteryState_t *batteryState;     //获取电池状态
@@ -362,8 +378,7 @@ static void Ui_ShowMainPage(void)
 * 返回值说明:
 * 修改记录：
 *******************************************************************************/
-static void Ui_NoPage(void)
-{
+static void Ui_NoPage(void){
 //  OLED_clear();   
 }
 /*******************************************************************************
@@ -505,28 +520,31 @@ static void Ui_FilePage(void){
 * 修改记录：
 *******************************************************************************/
 static void Ui_DetectionPage(u8 pattern){
+	detect_t * DetectPattern;
+	DetectPattern = get_DetectStatus();
 	switch (pattern){
 		case 1:
 			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECTION1_PAGE);
 			ui_state.ui_page = UI_DETECTION1_PAGE;
-			DetectPattern.detect_pattern = pattern_one;
+			DetectPattern->detect_pattern = pattern_one;
 			break;
 		case 2:
 			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECTION2_PAGE);
 			ui_state.ui_page = UI_DETECTION2_PAGE;
-			DetectPattern.detect_pattern = pattern_two;
+			DetectPattern->detect_pattern = pattern_two;
 			break;
 		case 3:
 			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECTION2_PAGE);
 			ui_state.ui_page = UI_DETECTION2_PAGE;
-			DetectPattern.detect_pattern = pattern_three;
+			DetectPattern->detect_pattern = pattern_three;
 			break;
 	}
-	DetectPattern.detect_status = stop;
+	DetectPattern->detect_status = next_start;
 	Ui_showPicture(LOADING_ICO,31,21,64,64);//显示图标
 	Ui_showString(1,110,"开始",16,2);
 	Ui_showString(48,110,"停止",16,2);
 	Ui_showString(95,110,"返回",16,2);
+	detect_Init();
 }
 /*******************************************************************************
 * 函数名：  Ui_SetSubPage
@@ -553,24 +571,58 @@ static void Ui_SetSubPage(void){
 	ui_state.ui_page = UI_SET_SUB_PAGE;
 }
 
-
-static void Ui_detection_sub_page(){
-	switch (DetectPattern.detect_status){
-		case detecting:
-			debug(INFO,"暂停");
-			DetectPattern.detect_status = suspend;
-			Ui_showString(1,110,"继续",16,2);
-			xEventGroupSetBits(app_event,APP_DETECTION_1_EVENT);
+/*******************************************************************************
+* 函数名：  Ui_detection_sub_page
+* 功能描述：设置子页
+* 作者：    Momo  
+* 参数说明：  
+* 返回值说明：
+* 修改记录：
+*******************************************************************************/
+void Ui_detection_sub_page(){
+	detect_t * DetectPattern = get_DetectStatus();
+	switch (DetectPattern->detect_status){
+		case next_start:
+			debug(INFO,"进入，将开始");
+			DetectPattern->detect_status = start;
+			Ui_showString(1,110,"暂停",16,2);
+			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
 			break;
-		case stop:
+		case end:
+			debug(INFO,"结束，将重新开始");
+			DetectPattern->detect_status = next_start;
+			Ui_showString(1,110,"开始",16,2);
+//			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+			break;
+//		case start:
+//			debug(INFO,"检测中。。。");
+//			DetectPattern->detect_status = detecting;
+//			Ui_showString(1,110,"暂停",16,2);
+//			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+//			break;
+		case detecting:						//检测中，按左键，暂停，显示“继续”
+			debug(INFO,"暂停");
+			DetectPattern->detect_status = suspend;
+			Ui_showString(1,110,"继续",16,2);
+			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+			break;
+		case stop:							//未开始，按左键，开始，显示“暂停”
 			debug(INFO,"开始");
-			DetectPattern.detect_status = detecting;
+			DetectPattern->detect_status = start;
+			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
 			Ui_showString(1,110,"暂停",16,2);
 			break;
-		case suspend:
+		case suspend:						//暂停，按左键，继续，显示“暂停”
 			debug(INFO,"继续");
-			DetectPattern.detect_status = detecting;
+			DetectPattern->detect_status = continu;
+			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+			Ui_showString(1,110,"暂停",16,2);
+			break;
+		case continu:						//检测中，按左键，暂停，显示“继续”
+			debug(INFO,"暂停");
+			DetectPattern->detect_status = suspend;
 			Ui_showString(1,110,"继续",16,2);
+			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
 			break;
 	}
 }
@@ -586,9 +638,7 @@ static void Ui_detection_sub_page(){
 static void Ui_Detecting_Page(u8 pattern){
 	switch (pattern){
 		case 1:
-			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECT_1_PAGE);
-//			DetectPattern.detect_status = detecting;	
-			
+			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECT_1_PAGE);			
 			Ui_detection_sub_page();
 			break;
 		case 2:
@@ -613,70 +663,99 @@ static void Ui_Detecting_Page(u8 pattern){
 
 void Ui_poll(void)
 {
-	EventBits_t EventValue;
-	
-	EventValue=xEventGroupWaitBits((EventGroupHandle_t	)ui_event,		//等待信号量触发,等待page置位 
-							   (EventBits_t			)UI_ALL_PAGE,
-							   (BaseType_t			)pdTRUE,				
-							   (BaseType_t			)pdFALSE,
-							   (TickType_t			)portMAX_DELAY);
+//	EventBits_t EventValue;
+//	
+//	EventValue=xEventGroupWaitBits((EventGroupHandle_t	)ui_event,		//等待信号量触发,等待page置位 
+//							   (EventBits_t			)UI_ALL_PAGE,
+//							   (BaseType_t			)pdTRUE,				
+//							   (BaseType_t			)pdFALSE,
+//							   (TickType_t			)portMAX_DELAY);
 	
 //	debug(WARN,"UI事件 %d",EventValue);
-	
-	switch(EventValue){
-		case UI_HOME_PAGE:			//主页
-			Ui_ShowMainPage();
-			break;
-		case UI_PATTERN_1_PAGE:		//模式1
-			Ui_ShowPattern1Page();
-			break;
-		case UI_PATTERN_2_PAGE:		//模式2
-			Ui_ShowPattern2Page();
-			break;
-		case UI_PATTERN_3_PAGE:		//模式3
-			Ui_ShowPattern3Page();
-			break;
-		case UI_SET_PAGE:			//设置
-			Ui_ShowSetPage();
-			break;
-		case UI_FILE_PAGE:			//文件
-			Ui_FilePage();
-			break;
-		case UI_DETECTION1_PAGE:	//检测模式1
-			Ui_DetectionPage(1);
-			break;
-		case UI_DETECTION2_PAGE:	//检测模式2
-			Ui_DetectionPage(2);
-			break;
-		case UI_DETECTION3_PAGE:	//检测模式2
-			Ui_DetectionPage(3);
-			break;
-		case UI_DETECT_1_PAGE:		//开始1
-			Ui_Detecting_Page(1);
-			break;
-		case UI_DETECT_2_PAGE:		//开始2
-			Ui_Detecting_Page(2);
-			break;
-		case UI_DETECT_3_PAGE:		//开始3
-			Ui_Detecting_Page(3);
-			break;
-		case UI_SET_SUB_PAGE:		//设置子叶
-			Ui_SetSubPage();
-			break;
-//		case UI_FILE_SUB_PAGE:
-//			Ui_FileSubPage();
-//			break;
-//		case UI_SET_TIME_PAGE:
-//			Ui_SetTimePage();
-//			break;
-//		case UI_SET_LAG_PAGE:
-//			Ui_SetLagPage();
-//			break;
-//		case UI_SET_SD_PAGE:
-//			Ui_SetSdPage();
-//			break;
-		default:
-			break;
+	u8 i;
+	BaseType_t err=pdFALSE;
+	err=xSemaphoreTake(ui_Sem,portMAX_DELAY);	//获取信号量
+	if((err==pdTRUE) && (ui_Event!= 0))									//获取信号量成功
+	{
+		for(i=0;i<UI_PAGE_SIZE;i++){
+			if(ui_Event & (1<<i)){
+					switch(1<<i){
+						case UI_NO_PAGE:
+							Ui_delPage(UI_NO_PAGE);
+							break;
+						case UI_HOME_PAGE:			//主页
+							Ui_delPage(UI_HOME_PAGE);
+							Ui_ShowMainPage();
+							break;
+						case UI_PATTERN_1_PAGE:		//模式1
+							Ui_delPage(UI_PATTERN_1_PAGE);
+							Ui_ShowPattern1Page();
+							break;
+						case UI_PATTERN_2_PAGE:		//模式2
+							Ui_delPage(UI_PATTERN_2_PAGE);
+							Ui_ShowPattern2Page();
+							break;
+						case UI_PATTERN_3_PAGE:		//模式3
+							Ui_delPage(UI_PATTERN_3_PAGE);
+							Ui_ShowPattern3Page();
+							break;
+						case UI_SET_PAGE:			//设置
+							Ui_delPage(UI_SET_PAGE);
+							Ui_ShowSetPage();
+							break;
+						case UI_FILE_PAGE:			//文件
+							Ui_delPage(UI_FILE_PAGE);
+							Ui_FilePage();
+							break;
+						case UI_DETECTION1_PAGE:	//检测模式1
+							Ui_delPage(UI_DETECTION1_PAGE);
+							Ui_DetectionPage(1);
+							break;
+						case UI_DETECTION2_PAGE:	//检测模式2
+							Ui_delPage(UI_DETECTION2_PAGE);
+							Ui_DetectionPage(2);
+							break;
+						case UI_DETECTION3_PAGE:	//检测模式3
+							Ui_delPage(UI_DETECTION3_PAGE);
+							Ui_DetectionPage(3);
+							break;
+						case UI_DETECT_1_PAGE:		//开始检测模式1
+							Ui_delPage(UI_DETECT_1_PAGE);
+							Ui_Detecting_Page(1);
+							break;
+						case UI_DETECT_2_PAGE:		//开始检测模式2
+							Ui_delPage(UI_DETECT_2_PAGE);
+							Ui_Detecting_Page(2);
+							break;
+						case UI_DETECT_3_PAGE:		//开始检测模式3
+							Ui_delPage(UI_DETECT_3_PAGE);
+							Ui_Detecting_Page(3);
+							break;
+						case UI_PATTERN_1_PAGE_MENU:	//再检测模式按menu键
+							Ui_delPage(UI_PATTERN_1_PAGE_MENU);
+							Ui_Detecting_Page(1);
+							break;
+						case UI_SET_SUB_PAGE:		//设置子叶
+							Ui_delPage(UI_SET_SUB_PAGE);
+							Ui_SetSubPage();
+							break;
+					//		case UI_FILE_SUB_PAGE:
+					//			Ui_FileSubPage();
+					//			break;
+					//		case UI_SET_TIME_PAGE:
+					//			Ui_SetTimePage();
+					//			break;
+					//		case UI_SET_LAG_PAGE:
+					//			Ui_SetLagPage();
+					//			break;
+					//		case UI_SET_SD_PAGE:
+					//			Ui_SetSdPage();
+					//			break;
+						default:
+							break;
+					}
+			}
+		}
 	}
 }
 

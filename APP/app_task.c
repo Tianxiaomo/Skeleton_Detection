@@ -13,6 +13,7 @@ Skeleton_Detection
 #include "app_task.h"
 #include "FreeRTOS.h"
 #include "app_handler.h"
+#include "app_detect.h"
 #include "led.h"
 #include "key.h"
 #include "delay.h"
@@ -26,6 +27,10 @@ Skeleton_Detection
 #include "exfuns.h"
 #include "ui.h"
 #include "app_time.h"
+#include "ad7192.h"
+#include "ADXL355.h"
+#include "piclib.h"
+#include "sdio_sdcard.h"
 //#include "watchInfo.h"
 //#include "protocol.h"
 //#include "power.h"
@@ -68,9 +73,10 @@ void App_timerHandler(TimerHandle_t xTimer);
 ****************************************************************************************************************/
 void App_init()	 
 {
+	long long i;
 	app_event=xEventGroupCreate();	 //创建事件标志组
 	app_timer=xTimerCreate((const char*		)"AutoReloadTimer",
-							(TickType_t			)1000,
+							(TickType_t			)100000,
 							(UBaseType_t		)pdTRUE,
 							(void*				)1,
 							(TimerCallbackFunction_t)App_timerHandler); //周期定时器，周期1s(1000个时钟节拍)，周期模式
@@ -78,13 +84,15 @@ void App_init()
 	
 	LED_Init();						//初始化与LED连接的硬件接口
 	Key_Init();						//初始化按键
-	RTC_Init();						//RTC初始化
+	printf("%d\r\n",RTC_Init());						//RTC初始化
 	OLED_Init();					//初始化OLED屏
 	piclib_init();					//初始化画图
 	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,WHITE);		
  	debug(DEBUG,"oled ok");
 	Ui_init();
 	App_Time_Show_Init();
+
+	printf("%d\r\n",sizeof(i));
 							
 	my_mem_init(SRAMIN);			//初始化内部内存池
 	while(SD_Init())				//检测不到SD卡
@@ -141,14 +149,8 @@ void App_task(void *pvParameters)
 		case APP_OLED_ON_EVENT:
 			App_powerOnHandler();
 			break;
-		case APP_DETECTION_1_EVENT:
-			App_detect1Handler();
-			break;
-		case APP_DETECTION_2_EVENT:
-			App_detect2Handler();
-			break;
-		case APP_DETECTION_3_EVENT:
-			App_detect3Handler();
+		case APP_DETECTION_EVENT:
+			App_detectHandler();
 			break;
 		case APP_OLED_DOWN_EVENT:
 			App_powerDownHandler();
