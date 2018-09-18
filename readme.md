@@ -65,16 +65,13 @@
 	- 功能： 添加匿名上位机协议
 	- 描述： 为查看波形，暂使用匿名上位机4.1版本，添加支持的协议
 
-<<<<<<< HEAD
 ## version ：1.0.0
-=======
 ### version ：1.0.0
 - 作者： 胡广豪
 - 功能： 增加声音采集传感器，需要添加相应的ADC驱动，OLED驱动
 - 描述：AD7192的SPI_miso脚和RDY为一个脚，如果使用软件模拟SPI可以连接一个到一个GPIO即可，如果使用硬件SPI需再连接到一个引脚作为RDY脚
 
 ### version：1.0.1 使用freertos
-=======
 ## version：1.0.1 使用freertos
 - 作者：胡广豪
 - 功能：freertos调度系统
@@ -119,5 +116,28 @@ void SysTick_Handler(void)
 ![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfijo0dsj303r03rmx0.jpg)
 ![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfjb4dl7j303o03pglg.jpg)
 ![](https://ws1.sinaimg.cn/large/005PF9Rqgy1fvbfjqng3dj303n03s746.jpg)
-  
 
+### version: 1.1.1 增加UI切换功能
+- 作者：胡广豪
+- 功能：增加UI切换功能
+
+### version: 1.1.2 增加一级页面时间定时更新
+- 作者：胡广豪
+- 功能：增加一级页面时间定时更新,watchdog可以定期喂狗
+
+### version: 1.1.3 oled驱动优化刷新速度，UI优化
+- 作者：胡广豪
+- 功能：oled驱动优化刷新速度，SPI速度的提高和内部刷新的提高，基本一帧要10ms，UI优化
+
+### version: 1.1.4 将adxl355和ad7192驱动文件加入，app单独分离出文件夹 
+- 作者：胡广豪
+- 功能：将adxl355和ad7192驱动文件加入，具体还没有改，app单独分离出文件夹 
+
+### version: 1.1.5 添加iic,修改ui以开始和继续，但是存在bug
+- 作者：胡广豪
+- 功能： 添加iic,修改ui以开始和继续，但是存在bug
+
+### version: 1.2.0
+- 作者：胡广豪
+- 功能：UI事件组改位UI信号量，保证足够多的UI信号
+- 详细：将ui的事件组换成了信号，事件组一共可以用24个事件，太少，用信号加一longlong全局变量，64个，检测模式1可以用了，还修复了rtc的bug，系统时钟频率调高了100倍，保证ad7192在空闲时的节拍可以用于其他事件
