@@ -133,7 +133,7 @@ typedef struct
 #define CONTENT_ICO		"0:/SYSTEM/ICO/content-save.jpg"
 #define ABOUT_ICO		"0:/SYSTEM/ICO/about.jpg"
 
-#define pic_wel		"0:/SYSTEM/PICTURE/1.gif"
+#define pic_wel		"0:/SYSTEM/PICTURE/WALCOME.gif"
 #define pic_menu 	"0:/SYSTEM/PICTURE/MENU.jpg"
 #define Menu_PC 			WHITE
 #define Menu_BC 			WHITE

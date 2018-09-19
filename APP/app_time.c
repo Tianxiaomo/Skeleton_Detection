@@ -20,6 +20,7 @@ Skeleton_Detection
 #include "battery.h"
 #include "delay.h"
 #include "log.h"
+#include "adc.h"
 /***********************************************************************************************************************
  * CONSTANTS
  */
@@ -56,6 +57,8 @@ void App_timeShowHandler(TimerHandle_t xTimer); 	//周期定时器回调函数
 **********************************************************************************************************/
 void App_Time_Show_Init(void)
 {
+	MY_ADC_Init();			//把电池状态更新和时间更新放在一起
+	
 	app_time_show_handle = xTimerCreate((const char*		)"AppTimeShowTimer",
 								(TickType_t			)100000*60,
 								(UBaseType_t		)pdTRUE,
@@ -74,7 +77,7 @@ void App_Time_Show_Stop(void){
 /*********************************************************************************************************
 * 函数名：    App_timeShowHandler
 * 功能描述：  更新时间用
-* 作者：      Momo  
+* 作者：      胡广豪  
 * 参数说明：  
 * 返回值说明：
 * 修改记录：由于按键较硬，按下抬起一般要2-4 * 10个节拍，大多数是3 * 10个节拍

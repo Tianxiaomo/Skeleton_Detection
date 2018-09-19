@@ -2,22 +2,7 @@
 #include "gif.h"	 
 #include "ff.h"	
 #include "delay.h"	    
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//ALIENTEK STM32开发板 
-//图片解码 驱动代码-gif解码部分
-//正点原子@ALIENTEK
-//技术论坛:www.openedv.com
-//创建日期:2016/1/7
-//版本：V1.0
-//版权所有，盗版必究。
-//Copyright(C) 广州市星翼电子科技有限公司 2014-2024
-//All rights reserved
-//********************************************************************************
-//升级说明 
-//无
-//////////////////////////////////////////////////////////////////////////////////
-				    
+			    
 
 const u16 _aMaskTbl[16] =
 {
@@ -533,7 +518,7 @@ u8 gif_decode(const u8 *filename,u16 x,u16 y,u16 width,u16 height)
 //				#if SYSTEM_SUPPORT_OS 
 //				while(dtime--&&gifdecoding)vTaskDelay(10*100);//延迟
 //				#else
-				while(dtime--&&gifdecoding)delay_ms(1000);//延迟
+				while(dtime--&&gifdecoding)vTaskDelay(1000);//延迟
 //				#endif
 				if(res==2)
 				{

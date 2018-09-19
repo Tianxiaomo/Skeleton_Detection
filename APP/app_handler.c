@@ -23,6 +23,7 @@ Skeleton_Detection
 #include "log.h"
 #include "ad7192.h"
 #include "fattester.h"
+#include "adc.h"
 /***********************************************************************************************************************
  * CONSTANTS
  */
@@ -245,27 +246,67 @@ void App_keyHandler(void)
 /**********************************************************************************************************
 * 函数名：       App_alarmHandler
 * 功能描述：	  闹钟
-* 作者：		  Momo  
+* 作者：		  胡广豪  
 * 参数说明：	  none
 * 返回值说明：	  none
 * 修改记录： 
 **********************************************************************************************************/
 void App_timeshowHandler(void)
 {
+	static float batteryVoltage = 2.1;
+	float tempBatteryVoltage;
+	u16 adcAverage,batteryVoltageADCVal;
 	u8 uiBuf[10];
+	float highVoltage = 3.3,lowVoltage = 2.2;
+	float interval_Voltage = (highVoltage - lowVoltage) / 10;
+	
 	dateAndTime_t *dateAndTime;
 	debug(WARN,"更新显示时间事件");
 	dateAndTime = RTC_getDateAndTime();
 	sprintf((char*)uiBuf,"%02d:%02d",dateAndTime->hour,dateAndTime->minute);
 	debug(WARN,"时间： %s",uiBuf);
 	Ui_showString(1,2,uiBuf,12,5);
+	
+	batteryVoltageADCVal = Get_Adc(ADC_CH1); 
+	tempBatteryVoltage = batteryVoltageADCVal*(3.3/4096);
+	
+	if(tempBatteryVoltage<batteryVoltage)   //防止电压飘动，时高时低
+	{
+		batteryVoltage = tempBatteryVoltage;
+
+        /*电池电压和电池电量的关系*/
+        //使用滑动变阻器模拟电池电压会有
+		if( batteryVoltage > highVoltage - interval_Voltage && batteryVoltage < highVoltage ){
+			Ui_showPicture(BATTERY_JPG_100,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 2*interval_Voltage && batteryVoltage<  highVoltage - interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_90,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 3*interval_Voltage && batteryVoltage<  highVoltage - 2*interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_80,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 4*interval_Voltage && batteryVoltage<  highVoltage - 3*interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_70,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 5*interval_Voltage && batteryVoltage<  highVoltage - 4*interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_60,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 6*interval_Voltage  && batteryVoltage < highVoltage - 5*interval_Voltage){
+			Ui_showPicture(BATTERY_JPG_50,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 7*interval_Voltage && batteryVoltage<  highVoltage - 6*interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_40,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 8*interval_Voltage && batteryVoltage<  highVoltage - 7*interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_30,111,0,16,16);
+		}else if( batteryVoltage > highVoltage - 9*interval_Voltage && batteryVoltage<  highVoltage - 8*interval_Voltage ){
+			Ui_showPicture(BATTERY_JPG_20,111,0,16,16);
+		}else if( batteryVoltage > lowVoltage && batteryVoltage < highVoltage - 9*interval_Voltage){
+			Ui_showPicture(BATTERY_JPG_10,111,0,16,16);
+		}else{
+			
+		}
+	}
 }
 
 
 /**********************************************************************************************************
 * 函数名：       App_powerOnHandler
 * 功能描述：	  切换ui
-* 作者：		  Momo  
+* 作者：		  胡广豪  
 * 参数说明：	  none
 * 返回值说明：	  none
 * 修改记录： 
@@ -273,12 +314,7 @@ void App_timeshowHandler(void)
 void App_powerOnHandler(void)
 {
 	debug(WARN,"收到亮屏事件");
-//  Motor_ON(MOROT_INTENSITY_3,1);  //开机，马达震动1次
-//  Pedometer_startSoftTimer();//启动app_timer ,移到MPU6050读ID函数中
-//  Ui_showAdvertPage();             //开机广告
-//  delay_ms(2000);
 	Ui_postPage(UI_HOME_PAGE);
-//  
 }
 /**********************************************************************************************************
 * 函数名：        App_powerDownHandler
@@ -299,7 +335,7 @@ void App_powerDownHandler(void)
 /**********************************************************************************************************
 * 函数名：       App_batteryDetectHandler
 * 功能描述：	  电池电量检测
-* 作者：		  Momo  
+* 作者：		  胡广豪  
 * 参数说明：	  none
 * 返回值说明：	  none
 * 修改记录： 
@@ -310,7 +346,7 @@ void App_batteryDetectHandler(void)
 //  batteryState_t *batteryState;
 //  batteryState = 
 	Battery_getState();
-  //Momo 屏蔽着两句为了避免充电时刷屏，屏蔽后，功能效果为:插上充电下不会立即显示充电UI，而是按按键才显示
+  //胡广豪 屏蔽着两句为了避免充电时刷屏，屏蔽后，功能效果为:插上充电下不会立即显示充电UI，而是按按键才显示
  // if(BATTERY_CHARGE_ING == batteryState->chargeState)   //如果检测到充电，立即出发UI主页，显示正在充电
  // 	Ui_postPage(UI_HOME_PAGE); //显示UI主页
 }

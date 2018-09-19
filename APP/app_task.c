@@ -31,11 +31,7 @@ Skeleton_Detection
 #include "ADXL355.h"
 #include "piclib.h"
 #include "sdio_sdcard.h"
-//#include "watchInfo.h"
-//#include "protocol.h"
-//#include "power.h"
 //#include "battery.h"
-//#include "bluetooth.h"
 //#include "WatchDog.h"
 /***********************************************************************************************************************
  * CONSTANTS
@@ -66,34 +62,31 @@ void App_timerHandler(TimerHandle_t xTimer);
 /***************************************************************************************************************
 * 函数名：App_Init
 * 功能描述：初始化
-* 作者：Momo	
+* 作者：胡广豪	
 * 参数说明：	 
 * 返回值说明：
 * 修改记录：
 ****************************************************************************************************************/
 void App_init()	 
 {
-	long long i;
 	app_event=xEventGroupCreate();	 //创建事件标志组
 	app_timer=xTimerCreate((const char*		)"AutoReloadTimer",
 							(TickType_t			)100000,
 							(UBaseType_t		)pdTRUE,
 							(void*				)1,
 							(TimerCallbackFunction_t)App_timerHandler); //周期定时器，周期1s(1000个时钟节拍)，周期模式
-	xTimerStart(app_timer,0);			//启动定时器				
+	xTimerStart(app_timer,0);		//启动定时器				
 	
 	LED_Init();						//初始化与LED连接的硬件接口
 	Key_Init();						//初始化按键
-	printf("%d\r\n",RTC_Init());						//RTC初始化
+	debug(DEBUG,"RTC: %d\r\n",RTC_Init());	//RTC初始化
 	OLED_Init();					//初始化OLED屏
 	piclib_init();					//初始化画图
-	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,WHITE);		
+	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,BLACK);	
+					
  	debug(DEBUG,"oled ok");
 	Ui_init();
 	App_Time_Show_Init();
-
-	printf("%d\r\n",sizeof(i));
-							
 	my_mem_init(SRAMIN);			//初始化内部内存池
 	while(SD_Init())				//检测不到SD卡
 	{
@@ -105,12 +98,15 @@ void App_init()
 	exfuns_init();					//为fatfs相关变量申请内存  
  	f_mount(fs[0],"0:",1); 			//挂载SD卡 
 	
+	Ui_showPicture(pic_wel,13,13,100,100);
+	Fill_Block(0,oleddev.width-1,0,oleddev.height-1,WHITE);	
+
 	xEventGroupSetBits(app_event,APP_OLED_ON_EVENT);
 }
 /**************************************************************************************************************
 * 函数名：  App_task
 * 功能描述：主线程
-* 作者：    Momo  
+* 作者：    胡广豪  
 * 参数说明：	
 * 返回值说明：
 * 修改记录：
@@ -132,11 +128,7 @@ void App_task(void *pvParameters)
 		EventValue &= APP_NOT_DOG;
 //		debug(DEBUG,"事件 %d",EventValue);
 		switch(EventValue)
-		{
-//		case APP_PROTOCOL_PARASE_EVENT:
-//			App_delEvent(APP_PROTOCOL_PARASE_EVENT);
-//			Protocol_paraseHandler(uart_rx_buf);
-//			break;					
+		{				
 		case APP_KEY_EVENT:
 			App_keyHandler();
 			break;
@@ -159,7 +151,6 @@ void App_task(void *pvParameters)
 //			IWDG_feed();//喂狗
 //			break;
 		default:
-//			app_event &= ~(1<<i);
 			break;
 		}
 		Ui_poll();  //ui轮训
@@ -168,7 +159,7 @@ void App_task(void *pvParameters)
 /*************************************************************************************************************
 * 函数名：App_timerHandler,软定时器中断函数
 * 功能描述：软定时中断，触发信号量，进行喂狗
-* 作者：Momo	
+* 作者：胡广豪	
 * 参数说明：	 
 * 返回值说明：
 * 修改记录：
