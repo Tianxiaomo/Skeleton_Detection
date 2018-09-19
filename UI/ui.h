@@ -53,7 +53,7 @@ typedef struct
 #define UI_PATTERN_2_PAGE       0X000008
 #define UI_PATTERN_3_PAGE       0X000010
 #define UI_SET_PAGE             0X000020		//设置
-#define UI_FILE_PAGE            0X000030		//文件
+#define UI_FILE_PAGE            0X000040		//文件
 
 #define UI_SECOND_PAGE			(UI_DETECTION1_PAGE|UI_DETECTION2_PAGE|UI_DETECTION3_PAGE|UI_SET_SUB_PAGE|UI_FILE_SUB_PAGE)
 #define UI_DETECTION1_PAGE      0X000080
@@ -156,7 +156,7 @@ void Ui_init(void);
 void Ui_delPage(long long page);
 void Ui_showAdvertPage(void);
 void Ui_showString(u8 x,u8 y,u8 *chr,u8 Char_Size,u8 Char_Num);
-void Ui_detection_sub_page(void);
+void Ui_Detecting_Page(u8 pattern);
 void Ui_Welcome(void);
 void Ui_Menu(void);
 /*********************************************************************

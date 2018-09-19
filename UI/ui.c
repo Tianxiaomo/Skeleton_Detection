@@ -399,9 +399,9 @@ static void Ui_ShowInfoPage(u32 ui_page,u32 next_page){
 //	debug(WARN,"显 %d && %d = %d",(ui_page & UI_FIRST_PAGE),(next_page & UI_FIRST_PAGE),(ui_page & UI_FIRST_PAGE) && (next_page & UI_FIRST_PAGE));
 	if(UI_HOME_PAGE == ui_page){												//从home页翻出
 		debug(WARN,"从home页翻出");
-		Fill_Block_A(13,18,100,38,WHITE);		//logo擦出	
-		Fill_Block_A(23,56,80,32,WHITE);		//时间擦出
-		Fill_Block_A(25,90,90,12,WHITE);		//日期擦除
+		Fill_Block_A(13,18,100,38,WHITE);				//logo擦出	
+		Fill_Block_A(23,56,80,32,WHITE);				//时间擦出
+		Fill_Block_A(25,90,90,12,WHITE);				//日期擦除
 	}else if((ui_page & UI_FIRST_PAGE) && (next_page & UI_FIRST_PAGE)){			//一级页面翻页
 		debug(WARN,"一级页面翻页");
 		Fill_Block_A(43,95,40,16,WHITE);
@@ -415,6 +415,8 @@ static void Ui_ShowInfoPage(u32 ui_page,u32 next_page){
 		Fill_Block_A(1,2,30,12,WHITE);					//时间
 		Fill_Block_A(43,95,40,16,WHITE);				//“设置，模式1...”
 		Fill_Block_A(31,21,64,64,WHITE);				//图标
+		
+		App_Time_Show_Stop();							//界面时间和电量停止显示
 	}else if((next_page & UI_FIRST_PAGE) && (ui_page & UI_SECOND_PAGE)){		//返回一级页面
 		debug(WARN,"返回一级页面");
 		Fill_Block_A(1,110,32,16,WHITE);								//底部的功能提示擦除
@@ -430,7 +432,9 @@ static void Ui_ShowInfoPage(u32 ui_page,u32 next_page){
 		debug(WARN,"时间： %s",uiBuf);
 		Ui_showString(1,2,uiBuf,12,5);
 		
-		Ui_showPicture(MORE_ICO,51,116,24,8);		
+		Ui_showPicture(MORE_ICO,51,116,24,8);
+
+		App_Time_Show_Start();							//界面的时间从新开始更新
 	}else if((ui_page & UI_FIRST_PAGE) && (next_page == UI_HOME_PAGE)){			//翻页到home页
 		debug(WARN,"翻页到home页");
 		Fill_Block_A(31,21,64,64,WHITE);
@@ -544,7 +548,7 @@ static void Ui_DetectionPage(u8 pattern){
 	Ui_showString(1,110,"开始",16,2);
 	Ui_showString(48,110,"停止",16,2);
 	Ui_showString(95,110,"返回",16,2);
-	detect_Init();
+	App_detect_Init();
 }
 /*******************************************************************************
 * 函数名：  Ui_SetSubPage
@@ -571,15 +575,17 @@ static void Ui_SetSubPage(void){
 	ui_state.ui_page = UI_SET_SUB_PAGE;
 }
 
+
+
 /*******************************************************************************
-* 函数名：  Ui_detection_sub_page
-* 功能描述：设置子页
+* 函数名：  Ui_Detect_1_Page
+* 功能描述：检测1
 * 作者：    Momo  
 * 参数说明：  
 * 返回值说明：
 * 修改记录：
 *******************************************************************************/
-void Ui_detection_sub_page(){
+void Ui_Detecting_Page(u8 pattern){
 	detect_t * DetectPattern = get_DetectStatus();
 	switch (DetectPattern->detect_status){
 		case next_start:
@@ -592,14 +598,7 @@ void Ui_detection_sub_page(){
 			debug(INFO,"结束，将重新开始");
 			DetectPattern->detect_status = next_start;
 			Ui_showString(1,110,"开始",16,2);
-//			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
 			break;
-//		case start:
-//			debug(INFO,"检测中。。。");
-//			DetectPattern->detect_status = detecting;
-//			Ui_showString(1,110,"暂停",16,2);
-//			xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
-//			break;
 		case detecting:						//检测中，按左键，暂停，显示“继续”
 			debug(INFO,"暂停");
 			DetectPattern->detect_status = suspend;
@@ -635,18 +634,29 @@ void Ui_detection_sub_page(){
 * 返回值说明：
 * 修改记录：
 *******************************************************************************/
-static void Ui_Detecting_Page(u8 pattern){
+static void Ui_Detect_Stop(u8 pattern){
+	detect_t * DetectPattern = get_DetectStatus();
 	switch (pattern){
 		case 1:
-			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECT_1_PAGE);			
-			Ui_detection_sub_page();
+			switch (DetectPattern->detect_status){
+				case detecting:						//检测中，按左键，暂停，显示“继续”
+					debug(INFO,"停止");
+					DetectPattern->detect_status = stop;
+					Ui_showString(1,110,"开始",16,2);
+					xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+					break;
+				case suspend:						//暂停，按左键，继续，显示“暂停”
+					debug(INFO,"停止");
+					DetectPattern->detect_status = stop;
+					xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+					Ui_showString(1,110,"开始",16,2);
+					break;
+				}
 			break;
 		case 2:
-			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECT_1_PAGE);
 
 			break;
 		case 3:
-			Ui_ShowInfoPage(ui_state.ui_page,UI_DETECT_1_PAGE);
 
 			break;
 	}
@@ -733,7 +743,7 @@ void Ui_poll(void)
 							break;
 						case UI_PATTERN_1_PAGE_MENU:	//再检测模式按menu键
 							Ui_delPage(UI_PATTERN_1_PAGE_MENU);
-							Ui_Detecting_Page(1);
+							Ui_Detect_Stop(1);
 							break;
 						case UI_SET_SUB_PAGE:		//设置子叶
 							Ui_delPage(UI_SET_SUB_PAGE);

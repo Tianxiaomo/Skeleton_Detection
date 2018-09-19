@@ -72,22 +72,38 @@ typedef enum {
    SPI_READ_THREE_REG,              /* Read X,Y,Z ACC registers */
 } enRegsNum;
 
-void ADXL355_Init(u8 Deviceaddr); //初始化IIC
+void ADXL355_1_Init(u8 Deviceaddr); //初始化IIC
+void ADXL355_2_Init(u8 Deviceaddr); //初始化IIC
 
-u8 ADXL355_ReadOneByte(u8 ReadAddr);								//指定地址读取一个字节
-static void ADXL355_WriteOneByte(u8 WriteAddr,u8 DataToWrite);			//指定地址写入一个字节
-static void ADXL355_WriteLenByte(u8 WriteAddr,u32 DataToWrite,u8 Len);	//指定地址开始写入指定长度的数据
-static u32 ADXL355_ReadLenByte(u8 ReadAddr,u8 Len);						//指定地址开始读取指定长度数据
+u8 ADXL355_1_ReadOneByte(u8 ReadAddr);								//指定地址读取一个字节
+static void ADXL355_1_WriteOneByte(u8 WriteAddr,u8 DataToWrite);			//指定地址写入一个字节
+static void ADXL355_1_WriteLenByte(u8 WriteAddr,u32 DataToWrite,u8 Len);	//指定地址开始写入指定长度的数据
+static u32 ADXL355_1_ReadLenByte(u8 ReadAddr,u8 Len);						//指定地址开始读取指定长度数据
 
-void ADXL355_Start_Sensor(void);
-void ADXL355_Stop_Sensor(void);
+void ADXL355_1_Start_Sensor(void);
+void ADXL355_1_Stop_Sensor(void);
 
-float ADXL_RANGE_SET(u8 Range);
-u8 ADXL355_DEVICE_ID(void);
-u8 ADXL355_MI(void);
-u8 ADXL355_PART_ID(void);
+float ADXL_RANGE_SET_1(u8 Range);
+u8 ADXL355_1_DEVICE_ID(void);
+u8 ADXL355_1_MI(void);
+u8 ADXL355_1_PART_ID(void);
 
-void ADXL355_Data_Scan(int_least32_t* SensorX,int_least32_t* SensorY,int_least32_t* SensorZ,u32* SensorT);
-static u32 ADXL355_Acceleration_Data_Conversion (uint32_t ui32SensorData);
+void ADXL355_1_Data_Scan(int_least32_t* SensorX,int_least32_t* SensorY,int_least32_t* SensorZ,u32* SensorT);
+static u32 ADXL355_1_Acceleration_Data_Conversion (uint32_t ui32SensorData);
 
+u8 ADXL355_2_ReadOneByte(u8 ReadAddr);								//指定地址读取一个字节
+static void ADXL355_2_WriteOneByte(u8 WriteAddr,u8 DataToWrite);			//指定地址写入一个字节
+static void ADXL355_2_WriteLenByte(u8 WriteAddr,u32 DataToWrite,u8 Len);	//指定地址开始写入指定长度的数据
+static u32 ADXL355_2_ReadLenByte(u8 ReadAddr,u8 Len);						//指定地址开始读取指定长度数据
+
+void ADXL355_2_Start_Sensor(void);
+void ADXL355_2_Stop_Sensor(void);
+
+float ADXL_RANGE_SET_2(u8 Range);
+u8 ADXL355_2_DEVICE_ID(void);
+u8 ADXL355_2_MI(void);
+u8 ADXL355_2_PART_ID(void);
+
+void ADXL355_2_Data_Scan(int_least32_t* SensorX,int_least32_t* SensorY,int_least32_t* SensorZ,u32* SensorT);
+static u32 ADXL355_2_Acceleration_Data_Conversion (uint32_t ui32SensorData);
 #endif

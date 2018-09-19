@@ -39,7 +39,7 @@ FIL file_txt;
 u32 total;
 u32 detect_Num;
 detect_t DetectPattern = {0};
-
+float adxl355Scale;
 /***********************************************************************************************************************
  * LOCAL FUNCTIONS  DECLARE
  */
@@ -61,10 +61,22 @@ void Detect_timerHandler(TimerHandle_t xTimer);
 * 返回值说明：	  none
 * 修改记录： 
 **********************************************************************************************************/
-void detect_Init(){
-	AD7192Initialization();
-	ADXL355_Init(ASEL_LOW);
-
+void App_detect_Init(void){
+	switch (DetectPattern.detect_pattern){
+		case pattern_one:
+			AD7192Initialization();
+			break;
+		case pattern_two:
+			ADXL355_1_Init(ASEL_LOW);
+			ADXL355_2_Init(ASEL_HIGH);
+			break;
+		case pattern_three:
+			AD7192Initialization();
+			ADXL355_1_Init(ASEL_LOW);
+			ADXL355_2_Init(ASEL_HIGH);
+			break;
+	}
+	
 	detect_timer=xTimerCreate((const char*		)"DetectTimer",
 						(TickType_t			)25,
 						(UBaseType_t		)pdFALSE,
@@ -73,15 +85,14 @@ void detect_Init(){
 }
 
 /**********************************************************************************************************
-* 函数名：       App_detect2Handler
-* 功能描述：	  检测模式2
+* 函数名：       App_detectHandler
+* 功能描述：	  检测模式
 * 作者：		  Momo  
 * 参数说明：	  none
 * 返回值说明：	  none
 * 修改记录： 
 **********************************************************************************************************/
-void App_detectHandler(void)
-{
+void App_detectHandler(void){
 	u8 res;
 	u8 tbuf[40];
 	detect_Num = 0;
@@ -89,14 +100,14 @@ void App_detectHandler(void)
 	
 	debug(WARN,"检测模式%d,状态%d",DetectPattern.detect_pattern,DetectPattern.detect_status);
 	switch (DetectPattern.detect_pattern){
-		case pattern_one:
+		case pattern_one:							//模式一
 			switch (DetectPattern.detect_status){
 				case start:					// 开始，所以要进行
 					dateAndTime = RTC_getDateAndTime();
-					sprintf((char*)tbuf,"20%02d-%02d-%02d-%02d-%02d-%02d.txt",dateAndTime->year,dateAndTime->month,
+					sprintf((char*)tbuf,"Pattern1-20%02d-%02d-%02d-%02d-%02d-%02d.txt",dateAndTime->year,dateAndTime->month,
 						dateAndTime->date,dateAndTime->hour,dateAndTime->minute,dateAndTime->second); 
 					
-					debug(ERROR,"%s.txt",tbuf);
+					debug(ERROR,"%s",tbuf);
 					while((res = f_open(&file_txt,(const TCHAR*)tbuf,FA_WRITE|FA_CREATE_NEW))){printf("file open %d \r\n",res);	vTaskDelay(1000);}
 					AD7192StartContinuousConvertion(AIN1_COM|AIN2_COM);
 					DetectPattern.detect_status = detecting;
@@ -106,6 +117,7 @@ void App_detectHandler(void)
 				case stop:
 					xTimerStop(detect_timer,0);				//关闭定时器
 					f_close(&file_txt);
+					AD7192ExitContinuousRead();
 					debug(DEBUG,"detect stop end\r\n");
 					break;
 //				case detecting:
@@ -119,71 +131,168 @@ void App_detectHandler(void)
 					xTimerStart(detect_timer,0);			//启动定时器	
 					break;
 				case end:
-					Ui_detection_sub_page();				//调用一下检测页函数，显示检测完成
+					Ui_Detecting_Page(0);				//调用一下检测页函数，显示检测完成
 					break;
 			}
-		
-		
 			break;	
 		case pattern_two:
-			
+			switch (DetectPattern.detect_status){
+				case start:					// 开始，所以要进行
+					dateAndTime = RTC_getDateAndTime();
+					sprintf((char*)tbuf,"Pattern-2-20%02d-%02d-%02d-%02d-%02d-%02d.txt",dateAndTime->year,dateAndTime->month,
+						dateAndTime->date,dateAndTime->hour,dateAndTime->minute,dateAndTime->second); 
+					
+					debug(ERROR,"%s",tbuf);
+					while((res = f_open(&file_txt,(const TCHAR*)tbuf,FA_WRITE|FA_CREATE_NEW))){printf("file open %d \r\n",res);	vTaskDelay(1000);}
+					adxl355Scale = ADXL_RANGE_SET_1(8);
+					adxl355Scale = ADXL_RANGE_SET_2(8);
+					ADXL355_1_Start_Sensor();
+					ADXL355_2_Start_Sensor();
+					DetectPattern.detect_status = detecting;
+					debug(DEBUG,"start read\r\n");
+					xTimerStart(detect_timer,0);			//启动定时器	
+					break;
+				case stop:
+					xTimerStop(detect_timer,0);				//关闭定时器
+					f_close(&file_txt);
+					ADXL355_1_Stop_Sensor();
+					ADXL355_2_Stop_Sensor();
+					debug(DEBUG,"detect stop end\r\n");
+					break;
+//				case detecting:
+//					debug(DEBUG,"start read\r\n");
+//					xTimerStart(detect_timer,0);			//启动定时器	
+					break;
+				case suspend:
+					xTimerStop(detect_timer,0);				//关闭定时器
+					break;
+				case continu:
+					xTimerStart(detect_timer,0);			//启动定时器	
+					break;
+				case end:
+					Ui_Detecting_Page(0);				//调用一下检测页函数，显示检测完成
+					break;
+			}
 			break;
 		case pattern_three:
-			
+			switch (DetectPattern.detect_status){
+				case start:					// 开始，所以要进行
+					dateAndTime = RTC_getDateAndTime();
+					sprintf((char*)tbuf,"Pattern-3-20%02d-%02d-%02d-%02d-%02d-%02d.txt",dateAndTime->year,dateAndTime->month,
+						dateAndTime->date,dateAndTime->hour,dateAndTime->minute,dateAndTime->second); 
+					
+					debug(ERROR,"%s",tbuf);
+					while((res = f_open(&file_txt,(const TCHAR*)tbuf,FA_WRITE|FA_CREATE_NEW))){printf("file open %d \r\n",res);	vTaskDelay(1000);}
+					adxl355Scale = ADXL_RANGE_SET_1(8);
+					adxl355Scale = ADXL_RANGE_SET_2(8);
+					ADXL355_1_Start_Sensor();
+					ADXL355_2_Start_Sensor();
+					AD7192StartContinuousConvertion(AIN1_COM|AIN2_COM);
+					DetectPattern.detect_status = detecting;
+					debug(DEBUG,"start read\r\n");
+					xTimerStart(detect_timer,0);			//启动定时器	
+					break;
+				case stop:
+					xTimerStop(detect_timer,0);				//关闭定时器
+					f_close(&file_txt);
+					ADXL355_1_Stop_Sensor();
+					ADXL355_2_Stop_Sensor();
+					AD7192ExitContinuousRead();
+					debug(DEBUG,"detect stop end\r\n");
+					break;
+				case suspend:
+					xTimerStop(detect_timer,0);				//关闭定时器
+					break;
+				case continu:
+					xTimerStart(detect_timer,0);			//启动定时器	
+					break;
+				case end:
+					Ui_Detecting_Page(0);				//调用一下检测页函数，显示检测完成
+					break;
+			}
 			break;
-	
 	}
-
-
-	
 }
-
+/**********************************************************************************************************
+* 函数名：       Detect_timerHandler
+* 功能描述：	  检测间隔
+* 作者：		  Momo  
+* 参数说明：	  xTimer
+* 返回值说明：	  none
+* 修改记录： 
+**********************************************************************************************************/
 void Detect_timerHandler(TimerHandle_t xTimer){
-	total = AD7192ReadConvertingData();
-	f_write(&file_txt,&total,sizeof(total),&flag);
-	if(detect_Num < 10000){
-		detect_Num++;
-		total = AD7192ReadConvertingData();
-		f_write(&file_txt,&total,sizeof(total),&flag);
-		xTimerStart(detect_timer,0);
-	}else{
-		detect_Num = 0;
-		f_close(&file_txt);
-		debug(DEBUG,"read end\r\n");
-		xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
-		DetectPattern.detect_status = end;
+	int_least32_t SensorX,SensorY,SensorZ;
+	u32 SensorT,size;
+	char tem[125];
+	switch (DetectPattern.detect_pattern){
+		case pattern_one:
+			total = AD7192ReadConvertingData();
+			f_write(&file_txt,&total,sizeof(total),&flag);
+			if(detect_Num < 10000){
+				detect_Num++;
+				total = AD7192ReadConvertingData();
+				f_write(&file_txt,&total,sizeof(total),&flag);
+				xTimerStart(detect_timer,0);
+			}else{
+				detect_Num = 0;
+				f_close(&file_txt);
+				AD7192ExitContinuousRead();
+				debug(DEBUG,"read end\r\n");
+				xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+				DetectPattern.detect_status = end;
+			}
+			break;
+		case pattern_two:
+			if(detect_Num < 10000){
+				detect_Num++;
+				ADXL355_1_Data_Scan( &SensorX, &SensorY, &SensorZ, &SensorT);
+				size=sprintf(tem,"%f;%f;%f\r\n",(float)SensorX / adxl355Scale,(float)SensorX / adxl355Scale,(float)SensorZ / adxl355Scale);
+				f_write(&file_txt,tem,size,&flag);
+			}else{
+				detect_Num = 0;
+				f_close(&file_txt);
+				ADXL355_1_Stop_Sensor();
+				ADXL355_2_Stop_Sensor();
+				debug(DEBUG,"read end\r\n");
+				xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+				DetectPattern.detect_status = end;
+			}
+			xTimerStart(detect_timer,0);
+			break;
+		case pattern_three:
+			if(detect_Num < 10000){
+				detect_Num++;
+				total = AD7192ReadConvertingData();
+				f_write(&file_txt,&total,sizeof(total),&flag);
+				
+				ADXL355_1_Data_Scan( &SensorX, &SensorY, &SensorZ, &SensorT);
+				size=sprintf(tem,"%f;%f;%f\r\n",(float)SensorX / adxl355Scale,(float)SensorX / adxl355Scale,(float)SensorZ / adxl355Scale);
+				f_write(&file_txt,tem,size,&flag);
+				xTimerStart(detect_timer,0);
+			}else{
+				detect_Num = 0;
+				f_close(&file_txt);
+				ADXL355_1_Stop_Sensor();
+				ADXL355_2_Stop_Sensor();
+				AD7192ExitContinuousRead();
+				debug(DEBUG,"read end\r\n");
+				xEventGroupSetBits(app_event,APP_DETECTION_EVENT);
+				DetectPattern.detect_status = end;
+			}
+			xTimerStart(detect_timer,0);
+			break;
 	}
-				//启动定时器
-//	vTaskDelay(25);			//延时25个节拍
 }
 
 /**********************************************************************************************************
-* 函数名：       App_detect2Handler
-* 功能描述：	  检测模式2
+* 函数名：       get_DetectStatus
+* 功能描述：	  获取detect_t
 * 作者：		  Momo  
-* 参数说明：	  none
-* 返回值说明：	  none
+* 参数说明：	  void
+* 返回值说明：	  DetectPattern
 * 修改记录： 
 **********************************************************************************************************/
-void App_detect2Handler(void)
-{
-	debug(WARN,"检测模式2");
-
-}
-
-/**********************************************************************************************************
-* 函数名：       App_detect3Handler
-* 功能描述：	  检测模式3
-* 作者：		  Momo  
-* 参数说明：	  none
-* 返回值说明：	  none
-* 修改记录： 
-**********************************************************************************************************/
-void App_detect3Handler(void)
-{
-	debug(WARN,"检测模式3");
-
-}
 detect_t *get_DetectStatus(void){
 	return &DetectPattern;
 }

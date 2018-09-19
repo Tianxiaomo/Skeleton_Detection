@@ -84,7 +84,6 @@ void AD7192Initialization(void)
 
 void AD7192SoftwareReset()
 {
-	
 	unsigned char WriteBuf[1];
 	unsigned char ReadBuf[1];
 	unsigned char i;

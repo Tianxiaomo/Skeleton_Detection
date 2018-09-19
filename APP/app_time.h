@@ -36,6 +36,8 @@ extern "C"
  *PUBLIC FUNCTIONS DECLARE
  */
 void App_Time_Show_Init(void);
+void App_Time_Show_Start(void);
+void App_Time_Show_Stop(void);
 
 /*********************************************************************
 *********************************************************************/

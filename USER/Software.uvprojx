@@ -740,17 +740,17 @@
           <Files>
             <File>
               <FileName>readme.md</FileName>
-              <FileType>9</FileType>
+              <FileType>5</FileType>
               <FilePath>..\readme.md</FilePath>
             </File>
             <File>
               <FileName>.gitignore</FileName>
-              <FileType>9</FileType>
+              <FileType>5</FileType>
               <FilePath>..\.gitignore</FilePath>
             </File>
             <File>
               <FileName>keilkilll.bat</FileName>
-              <FileType>9</FileType>
+              <FileType>5</FileType>
               <FilePath>..\keilkilll.bat</FilePath>
             </File>
           </Files>

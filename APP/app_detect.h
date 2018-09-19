@@ -65,6 +65,7 @@ extern EventGroupHandle_t app_event;
 /*********************************************************************
  *PUBLIC FUNCTIONS DECLARE
  */
+void App_detect_Init(void);
 void App_detectHandler(void);
 void App_detect3Handler(void);
 detect_t *get_DetectStatus(void);
